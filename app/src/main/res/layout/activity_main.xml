@@ -6,7 +6,7 @@
     tools:context="com.chenxyu.androidbanner.MainActivity">
 
     <com.chenxyu.bannerlibrary.BannerView
-        android:id="@+id/ad_view"
+        android:id="@+id/banner_view"
         android:layout_width="match_parent"
         android:layout_height="200dp" />
 </RelativeLayout>

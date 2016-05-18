@@ -32,7 +32,7 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
 
     private OnItemClickListener mOnItemClickListener;
     private FixedSpeedScroller mScroller;
-    private int mTouchDuration = 220;
+    private int mTouchDuration = 250;
     private int mUpDuration = 400;
 
     private PagerAdapter mAdapter = new PagerAdapter() {
@@ -85,6 +85,22 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
         mIndicator3 = (ImageView) view.findViewById(R.id.indicator3);
         mIndicator4 = (ImageView) view.findViewById(R.id.indicator4);
         mIndicator5 = (ImageView) view.findViewById(R.id.indicator5);
+    }
+
+    private void initBanner() {
+        try {
+            Field field = ViewPager.class.getDeclaredField("mScroller");
+            field.setAccessible(true);
+            mScroller = new FixedSpeedScroller(mBannerViewPager.getContext(), new AccelerateInterpolator());
+            field.set(mBannerViewPager, mScroller);
+            mScroller.setDuration(mUpDuration);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mBannerViewPager.setAdapter(mAdapter);
+        mBannerViewPager.setCurrentItem(1);
+        mBannerViewPager.addOnPageChangeListener(this);
     }
 
     @Override
@@ -174,6 +190,7 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
         }
     }
 
+
     /**
      * 添加一个Item点击监听(对应1,2,3,4,5 不是0,1,2,3,4)
      *
@@ -214,7 +231,41 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
     }
 
     /**
-     * 添加图片URL
+     * 添加RES资源图片
+     *
+     * @param resId
+     * @param placeholder
+     * @param error
+     */
+    public void addImageRes(ArrayList<Integer> resId, int placeholder, int error) {
+        addImageRes(resId, placeholder, error, null);
+    }
+
+    /**
+     * 添加RES资源图片
+     *
+     * @param resId
+     * @param placeholder
+     * @param error
+     * @param scaleType
+     */
+    public void addImageRes(ArrayList<Integer> resId, int placeholder, int error, ImageView.ScaleType scaleType) {
+        resId.add(0, resId.get(resId.size() - 1));
+        resId.add(resId.size(), resId.get(1));
+
+        for (Integer res : resId) {
+            ImageView imageView = new ImageView(mContext);
+            imageView.setImageResource(res);
+            if (scaleType != null)
+                imageView.setScaleType(scaleType);
+            mImageViews.add(imageView);
+        }
+
+        initBanner();
+    }
+
+    /**
+     * 添加网络图片或本地图片
      *
      * @param url
      * @param placeholder 加载前图片
@@ -225,7 +276,7 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
     }
 
     /**
-     * 添加图片URL
+     * 添加网络图片或本地图片
      *
      * @param url
      * @param placeholder 加载前图片
@@ -251,19 +302,7 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
             mImageViews.add(imageView);
         }
 
-        try {
-            Field field = ViewPager.class.getDeclaredField("mScroller");
-            field.setAccessible(true);
-            mScroller = new FixedSpeedScroller(mBannerViewPager.getContext(), new AccelerateInterpolator());
-            field.set(mBannerViewPager, mScroller);
-            mScroller.setDuration(mUpDuration);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        mBannerViewPager.setAdapter(mAdapter);
-        mBannerViewPager.setCurrentItem(1);
-        mBannerViewPager.addOnPageChangeListener(this);
+        initBanner();
     }
 
     public interface OnItemClickListener {
