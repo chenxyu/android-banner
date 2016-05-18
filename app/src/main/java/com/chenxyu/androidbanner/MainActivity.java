@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 /**
  * @author ChenXingYu
- * @version v1.1.1
+ * @version v1.2.0
  */
 public class MainActivity extends AppCompatActivity {
     private BannerView mBannerView;
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 //        mImageUrls.add("http://f.hiphotos.baidu.com/image/pic/item/7aec54e736d12f2ecc3d90f84dc2d56285356869.jpg");
 //        mImageUrls.add("http://c.hiphotos.baidu.com/image/pic/item/3801213fb80e7bec5ed8456c2d2eb9389b506b38.jpg");
 //        mImageUrls.add("http://e.hiphotos.baidu.com/image/pic/item/9c16fdfaaf51f3de308a87fc96eef01f3a297969.jpg");
-//        mBannerView.addUrl(mImagePaths, R.mipmap.ic_launcher, R.mipmap.ic_launcher, ImageView.ScaleType.CENTER_CROP);
+//        mBannerView.addUrl(mImageUrls, R.mipmap.ic_launcher, R.mipmap.ic_launcher, ImageView.ScaleType.CENTER_CROP);
 
         // res资源图片
         mImages.add(R.mipmap.aaa);
