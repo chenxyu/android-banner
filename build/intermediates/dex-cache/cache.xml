@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="6a2c257200819a91a25c2bbb567b56bfe29dc144">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/instant-run-bootstrap_1ee9caec2586ffc0fd1afc5c0983a5d12ca4da76.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/com.android.support-support-vector-drawable-23.4.0_02167593ab4eb403804de5c95e404bc7ef8b7ebb.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/com.android.support-animated-vector-drawable-23.4.0_8b223876f54c494beea46e7eec23a7f72f0e9810.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/com.android.support-support-v4-23.4.0_93147e608ca287b1b14e2c583e41874fb17be40e.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/support-annotations-23.4.0_e2fe43b5a804c2703ef6faaf7c76d1a89571b2d0.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/internal_impl-23.4.0_d07bcbeaf5ca07ed8b7978acf506fbf7709f5bf0.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/.gradle/caches/modules-2/files-2.1/com.github.bumptech.glide/glide/3.7.0/9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4/glide-3.7.0.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/glide-3.7.0_e3d97b46a232829fe5f9b4b32f07359535d599a5.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/com.android.support-appcompat-v7-23.4.0_887f127d81277a940aff07edbe219afc61c67a3c.jar" />
+    </item>
+    <item
+        jar="/Users/chenxy/android-banner/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="30e83242764c9c7f597ac14059eeb7f7d7a8af24">
+        <dex dex="/Users/chenxy/android-banner/app/build/intermediates/pre-dexed/debug/instant-run_a9149c84db23c7c49990ce776c2d5f072eaf47e2.jar" />
+    </item>
+
+</items>
