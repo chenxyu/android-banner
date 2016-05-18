@@ -1,8 +1,9 @@
 # android-banner
-支持无限轮播,自定义切换速度和时间,指示器位置,加载网络图片.BannerView下查看具体方法.
+支持无限轮播,自定义切换速度和时间,指示器位置,加载网络或本地图片.BannerView下查看具体方法.
+图片加载依赖:Glide
 
 
-# Gradle 依赖
+# Gradle Dependency
 
 1.root build.gradle
 
@@ -19,7 +20,7 @@ allprojects {
 
 ```java
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v1.1.0'
+	        compile 'com.github.chenxyu:android-banner:v1.2.0'
 	}
 ```
 
