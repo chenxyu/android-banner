@@ -57,7 +57,8 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
             mImageViews.get(position).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(position);
+                    if (mOnItemClickListener != null)
+                        mOnItemClickListener.onItemClick(position);
                 }
             });
             return mImageViews.get(position);
