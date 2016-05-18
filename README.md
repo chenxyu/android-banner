@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
+
 # android-banner
 支持无限轮播,自定义切换速度和时间,指示器位置,加载网络或本地图片.BannerView下查看具体方法.
 图片加载依赖:Glide
