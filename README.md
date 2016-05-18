@@ -2,20 +2,27 @@
 支持无限轮播,自定义切换速度和时间,指示器位置,加载网络图片.BannerView下查看具体方法.
 
 
-
 # Gradle 依赖
 
 1.root build.gradle
+
+```java
 allprojects {
 		repositories {
 			...
 			maven { url "https://jitpack.io" }
 		}
 	}
+```
+
 2.app build.gradle
+
+```java
 dependencies {
 	        compile 'com.github.chenxyu:android-banner:v1.1.0'
 	}
+```
+
 
 # 使用方法
 
