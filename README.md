@@ -3,7 +3,7 @@
 图片加载依赖:Glide
 
 
-# Gradle Dependency
+# Gradle 依赖
 
 1.root build.gradle
 
