@@ -1,7 +1,7 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-必须5张图（暂时），支持无限轮播,自定义切换速度和时间,指示器位置,加载网络或本地图片.BannerView下查看具体方法.
+最多支持6张图（不可少于2张），支持无限轮播,指示器位置,加载网络或本地图片.
 图片加载依赖:Glide
 
 
@@ -22,7 +22,7 @@ allprojects {
 
 ```java
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v1.2.1'
+	        compile 'com.github.chenxyu:android-banner:v1.3.0'
 	}
 ```
 
@@ -37,6 +37,7 @@ dependencies {
 ```
 
 ```java
+    mBannerView = (BannerView) findViewById(R.id.banner_view);
     mBannerView.addUrl(mImagePaths, R.mipmap.ic_launcher, R.mipmap.ic_launcher, ImageView.ScaleType.CENTER_CROP);
 ```
 

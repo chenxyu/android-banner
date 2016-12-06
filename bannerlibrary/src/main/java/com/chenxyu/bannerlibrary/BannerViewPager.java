@@ -24,27 +24,21 @@ public class BannerViewPager extends ViewPager {
                     case 0:
                         setCurrentItem(1);
                         break;
-
                     case 1:
                         setCurrentItem(2);
                         break;
-
                     case 2:
                         setCurrentItem(3);
                         break;
-
                     case 3:
                         setCurrentItem(4);
                         break;
-
                     case 4:
                         setCurrentItem(5);
                         break;
-
                     case 5:
                         setCurrentItem(6);
                         break;
-
                     case 6:
                         setCurrentItem(7);
                         break;

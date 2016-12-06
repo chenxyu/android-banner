@@ -25,7 +25,8 @@
             android:layout_height="10dp"
             android:layout_margin="5dp"
             android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_white" />
+            android:src="@drawable/banner_indicator_white"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/indicator2"
@@ -33,7 +34,8 @@
             android:layout_height="10dp"
             android:layout_margin="5dp"
             android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray" />
+            android:src="@drawable/banner_indicator_gray"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/indicator3"
@@ -41,7 +43,8 @@
             android:layout_height="10dp"
             android:layout_margin="5dp"
             android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray" />
+            android:src="@drawable/banner_indicator_gray"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/indicator4"
@@ -49,7 +52,8 @@
             android:layout_height="10dp"
             android:layout_margin="5dp"
             android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray" />
+            android:src="@drawable/banner_indicator_gray"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/indicator5"
@@ -57,6 +61,16 @@
             android:layout_height="10dp"
             android:layout_margin="5dp"
             android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray" />
+            android:src="@drawable/banner_indicator_gray"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/indicator6"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_margin="5dp"
+            android:contentDescription="@null"
+            android:src="@drawable/banner_indicator_gray"
+            android:visibility="gone" />
     </LinearLayout>
 </RelativeLayout>

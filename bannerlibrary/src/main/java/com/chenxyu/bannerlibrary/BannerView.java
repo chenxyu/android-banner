@@ -23,17 +23,14 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
     private Context mContext;
     private BannerViewPager mBannerViewPager;
     private LinearLayout mRootIndicator;
-    private ImageView mIndicator1;
-    private ImageView mIndicator2;
-    private ImageView mIndicator3;
-    private ImageView mIndicator4;
-    private ImageView mIndicator5;
     private ArrayList<ImageView> mImageViews = new ArrayList<>();
+    private ArrayList<ImageView> mIndicators = new ArrayList<>();
+    private ArrayList<ImageView> mIndicators2 = new ArrayList<>();
 
     private OnItemClickListener mOnItemClickListener;
-    private FixedSpeedScroller mScroller;
-    private int mTouchDuration = 250;
-    private int mUpDuration = 400;
+//    private FixedSpeedScroller mScroller;
+//    private int mTouchDuration = 250;
+//    private int mUpDuration = 400;
 
     private PagerAdapter mAdapter = new PagerAdapter() {
         @Override
@@ -81,23 +78,24 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
         addView(view);
         mBannerViewPager = (BannerViewPager) view.findViewById(R.id.banner_view_pager);
         mRootIndicator = (LinearLayout) view.findViewById(R.id.root_indicator);
-        mIndicator1 = (ImageView) view.findViewById(R.id.indicator1);
-        mIndicator2 = (ImageView) view.findViewById(R.id.indicator2);
-        mIndicator3 = (ImageView) view.findViewById(R.id.indicator3);
-        mIndicator4 = (ImageView) view.findViewById(R.id.indicator4);
-        mIndicator5 = (ImageView) view.findViewById(R.id.indicator5);
+        mIndicators2.add((ImageView) view.findViewById(R.id.indicator1));
+        mIndicators2.add((ImageView) view.findViewById(R.id.indicator2));
+        mIndicators2.add((ImageView) view.findViewById(R.id.indicator3));
+        mIndicators2.add((ImageView) view.findViewById(R.id.indicator4));
+        mIndicators2.add((ImageView) view.findViewById(R.id.indicator5));
+        mIndicators2.add((ImageView) view.findViewById(R.id.indicator6));
     }
 
     private void initBanner() {
-        try {
-            Field field = ViewPager.class.getDeclaredField("mScroller");
-            field.setAccessible(true);
-            mScroller = new FixedSpeedScroller(mBannerViewPager.getContext(), new AccelerateInterpolator());
-            field.set(mBannerViewPager, mScroller);
-            mScroller.setDuration(mUpDuration);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Field field = ViewPager.class.getDeclaredField("mScroller");
+//            field.setAccessible(true);
+//            mScroller = new FixedSpeedScroller(mBannerViewPager.getContext(), new AccelerateInterpolator());
+//            field.set(mBannerViewPager, mScroller);
+//            mScroller.setDuration(mUpDuration);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         mBannerViewPager.setAdapter(mAdapter);
         mBannerViewPager.setCurrentItem(1);
@@ -111,62 +109,22 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
 
     @Override
     public void onPageSelected(int position) {
-        switch (position) {
-            case 0:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_white);
-                break;
-
-            case 1:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_white);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_gray);
-                break;
-
-            case 2:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_white);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_gray);
-                break;
-
-            case 3:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_white);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_gray);
-                break;
-
-            case 4:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_white);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_gray);
-                break;
-
-            case 5:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_white);
-                break;
-
-            case 6:
-                mIndicator1.setImageResource(R.drawable.banner_indicator_white);
-                mIndicator2.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator3.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator4.setImageResource(R.drawable.banner_indicator_gray);
-                mIndicator5.setImageResource(R.drawable.banner_indicator_gray);
-                break;
+        for (ImageView indicator : mIndicators) {
+            indicator.setImageResource(R.drawable.banner_indicator_gray);
+        }
+        for (int i = 0; i < mIndicators.size(); i++) {
+            if (position == 0) {
+                mIndicators.get(mIndicators.size() - 1).setImageResource(R.drawable.banner_indicator_white);
+                return;
+            } else if (position == mImageViews.size() - 1) {
+                mIndicators.get(0).setImageResource(R.drawable.banner_indicator_white);
+                return;
+            } else if (position == mImageViews.size() - 2) {
+                mIndicators.get(mIndicators.size() - 1).setImageResource(R.drawable.banner_indicator_white);
+                return;
+            } else if (i == position) {
+                mIndicators.get(i - 1).setImageResource(R.drawable.banner_indicator_white);
+            }
         }
     }
 
@@ -174,28 +132,25 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
     public void onPageScrollStateChanged(int state) {
         switch (state) {
             case ViewPager.SCROLL_STATE_IDLE:
-                mScroller.setDuration(mUpDuration);
-                switch (mBannerViewPager.getCurrentItem()) {
-                    case 0:
-                        mBannerViewPager.setCurrentItem(5, false);
-                        break;
-
-                    case 6:
-                        mBannerViewPager.setCurrentItem(1, false);
-                        break;
+//                mScroller.setDuration(mUpDuration);
+                if (mBannerViewPager.getCurrentItem() == 0) {
+                    mBannerViewPager.setCurrentItem(mImageViews.size() - 2, false);
+                }
+                if (mBannerViewPager.getCurrentItem() == mImageViews.size() - 1) {
+                    mBannerViewPager.setCurrentItem(1, false);
                 }
                 break;
             case ViewPager.SCROLL_STATE_DRAGGING:
-                mScroller.setDuration(mTouchDuration);
+//                mScroller.setDuration(mTouchDuration);
                 break;
         }
     }
 
 
     /**
-     * 添加一个Item点击监听(对应1,2,3,4,5 不是0,1,2,3,4)
+     * 添加一个Item点击事件(对应1,2,3,4,5 不是0,1,2,3,4)
      *
-     * @param listener
+     * @param listener 点击事件
      */
     public void addOnItemClickListener(OnItemClickListener listener) {
         this.mOnItemClickListener = listener;
@@ -205,7 +160,7 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
      * 设置Indicator位置(左中右)
      * 默认中
      *
-     * @param gravity
+     * @param gravity 位置
      */
     public void setIndicatorGravity(int gravity) {
         mRootIndicator.setGravity(gravity);
@@ -214,49 +169,53 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
     /**
      * 设置页面切换时间(请在addUrl前设置)
      *
-     * @param time
+     * @param time 页面切换时间
      */
     public void setTimeDelayed(int time) {
         mBannerViewPager.setTimeDelayed(time);
     }
 
+//    /**
+//     * 设置ViewPager切换速度(请在addUrl前设置)
+//     *
+//     * @param touchTime 手动切换速度
+//     * @param upTime    自动切换速度
+//     */
+//    public void setDuration(int touchTime, int upTime) {
+//        this.mTouchDuration = touchTime;
+//        this.mUpDuration = upTime;
+//    }
+
     /**
-     * 设置ViewPager切换速度(请在addUrl前设置)
+     * 添加RES资源图片(本地图片)
      *
-     * @param touchTime 手动切换速度
-     * @param upTime    自动切换速度
+     * @param resIds 图片资源ID
      */
-    public void setDuration(int touchTime, int upTime) {
-        this.mTouchDuration = touchTime;
-        this.mUpDuration = upTime;
+    public void addImageRes(ArrayList<Integer> resIds) {
+        if (resIds.size() > 6 || resIds.size() < 2) throw new RuntimeException("图片最少2张且不超过6张");
+        addImageRes(resIds, null);
     }
 
     /**
-     * 添加RES资源图片
+     * 添加RES资源图片(本地图片)
      *
-     * @param resId
-     * @param placeholder
-     * @param error
+     * @param resIds    图片资源ID
+     * @param scaleType ImageView的ScaleType
      */
-    public void addImageRes(ArrayList<Integer> resId, int placeholder, int error) {
-        addImageRes(resId, placeholder, error, null);
-    }
+    public void addImageRes(ArrayList<Integer> resIds, ImageView.ScaleType scaleType) {
+        if (resIds.size() > 6 || resIds.size() < 2) throw new RuntimeException("图片最少2张且不超过6张");
 
-    /**
-     * 添加RES资源图片
-     *
-     * @param resId
-     * @param placeholder
-     * @param error
-     * @param scaleType
-     */
-    public void addImageRes(ArrayList<Integer> resId, int placeholder, int error, ImageView.ScaleType scaleType) {
-        resId.add(0, resId.get(resId.size() - 1));
-        resId.add(resId.size(), resId.get(1));
+        for (int i = 0; i < resIds.size(); i++) {
+            mIndicators2.get(i).setVisibility(VISIBLE);
+            mIndicators.add(mIndicators2.get(i));
+        }
 
-        for (Integer res : resId) {
+        resIds.add(0, resIds.get(resIds.size() - 1));
+        resIds.add(resIds.size(), resIds.get(1));
+
+        for (Integer resId : resIds) {
             ImageView imageView = new ImageView(mContext);
-            imageView.setImageResource(res);
+            imageView.setImageResource(resId);
             if (scaleType != null)
                 imageView.setScaleType(scaleType);
             mImageViews.add(imageView);
@@ -268,33 +227,42 @@ public class BannerView extends LinearLayout implements ViewPager.OnPageChangeLi
     /**
      * 添加网络图片或本地图片
      *
-     * @param url
+     * @param urls        图片URL
      * @param placeholder 加载前图片
      * @param error       加载错误图片
      */
-    public void addUrl(ArrayList<String> url, int placeholder, int error) {
-        addUrl(url, placeholder, error, null);
+    public void addUrl(ArrayList<String> urls, int placeholder, int error) {
+        if (urls.size() > 6 || urls.size() < 2) throw new RuntimeException("图片最少2张且不超过6张");
+
+        addUrl(urls, placeholder, error, null);
     }
 
     /**
      * 添加网络图片或本地图片
      *
-     * @param url
+     * @param urls        图片URL
      * @param placeholder 加载前图片
      * @param error       加载错误图片
      * @param scaleType   ImageView的ScaleType
      */
-    public void addUrl(ArrayList<String> url, int placeholder, int error, ImageView.ScaleType scaleType) {
-        url.add(0, url.get(url.size() - 1));
-        url.add(url.size(), url.get(1));
+    public void addUrl(ArrayList<String> urls, int placeholder, int error, ImageView.ScaleType scaleType) {
+        if (urls.size() > 6 || urls.size() < 2) throw new RuntimeException("图片最少2张且不超过6张");
 
-        for (int i = 0; i < url.size(); i++) {
+        for (int i = 0; i < urls.size(); i++) {
+            mIndicators2.get(i).setVisibility(VISIBLE);
+            mIndicators.add(mIndicators2.get(i));
+        }
+
+        urls.add(0, urls.get(urls.size() - 1));
+        urls.add(urls.size(), urls.get(1));
+
+        for (int i = 0; i < urls.size(); i++) {
             ImageView imageView = new ImageView(mContext);
             if (scaleType != null)
                 imageView.setScaleType(scaleType);
 
             Glide.with(mContext)
-                    .load(url.get(i))
+                    .load(urls.get(i))
                     .placeholder(placeholder)
                     .error(error)
                     .crossFade()
