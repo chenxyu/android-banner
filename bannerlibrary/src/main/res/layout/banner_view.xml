@@ -1,76 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.chenxyu.bannerlibrary.BannerViewPager
-        android:id="@+id/banner_view_pager"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <LinearLayout
-        android:id="@+id/root_indicator"
+        android:id="@+id/indicator_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/indicator1"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="5dp"
-            android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_white"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/indicator2"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="5dp"
-            android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/indicator3"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="5dp"
-            android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/indicator4"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="5dp"
-            android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/indicator5"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="5dp"
-            android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/indicator6"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="5dp"
-            android:contentDescription="@null"
-            android:src="@drawable/banner_indicator_gray"
-            android:visibility="gone" />
-    </LinearLayout>
+        android:orientation="horizontal" />
 </RelativeLayout>

@@ -1,9 +1,11 @@
 package com.chenxyu.androidbanner;
 
-import android.support.v7.app.AppCompatActivity;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.chenxyu.bannerlibrary.BannerView;
 
@@ -13,7 +15,7 @@ import java.util.ArrayList;
  * @author ChenXingYu
  * @version v1.2.0
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
     private BannerView mBannerView;
     private ArrayList<String> mImageUrls = new ArrayList<>();
 
@@ -29,16 +31,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void findView() {
-        mBannerView = (BannerView) findViewById(R.id.banner_view);
+        mBannerView = findViewById(R.id.banner_view);
     }
 
     private void init() {
         // 网络或本地图片
-        mImageUrls.add("http://a.hiphotos.baidu.com/image/pic/item/3bf33a87e950352ad6465dad5143fbf2b2118b6b.jpg");
-        mImageUrls.add("http://a.hiphotos.baidu.com/image/pic/item/c8177f3e6709c93d002077529d3df8dcd0005440.jpg");
-        mImageUrls.add("http://f.hiphotos.baidu.com/image/pic/item/7aec54e736d12f2ecc3d90f84dc2d56285356869.jpg");
-        mImageUrls.add("http://c.hiphotos.baidu.com/image/pic/item/3801213fb80e7bec5ed8456c2d2eb9389b506b38.jpg");
-//        mImageUrls.add("http://e.hiphotos.baidu.com/image/pic/item/9c16fdfaaf51f3de308a87fc96eef01f3a297969.jpg");
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151718678&di=b0d073ad41f1e125aa7ee4abfcc9e2aa&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1920h1080%2F20180106%2F9692-fyqincu7584307.jpg");
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151462489&di=472f98f77c71a36dc90cde4ced4bb9e9&imgtype=0&src=http%3A%2F%2Fvsd-picture.cdn.bcebos.com%2F4649cd5d6dac13c4ae0901967f988fa691be04a9.jpg");
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151524641&di=38eb2dba3249d56e4a5466eb398bb443&imgtype=0&src=http%3A%2F%2Fwww.17qq.com%2Fimg_qqtouxiang%2F74875318.jpeg");
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151590305&di=09f460cb77e3cee5caae3d638c637abc&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201312%2F27%2F20131227233022_Bd3Ft.jpeg");
+        mImageUrls.add("https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=404341803,968061960&fm=11&gp=0.jpg");
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png");
         mBannerView.addUrl(mImageUrls, R.mipmap.ic_launcher, R.mipmap.ic_launcher, ImageView.ScaleType.CENTER_CROP);
 
         // res资源图片
@@ -52,9 +55,20 @@ public class MainActivity extends AppCompatActivity {
         mBannerView.addOnItemClickListener(new BannerView.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                // position对应12345
                 Toast.makeText(MainActivity.this, position + "", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBannerView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        mBannerView.onPause();
+        super.onPause();
     }
 }
