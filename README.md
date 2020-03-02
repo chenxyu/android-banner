@@ -1,7 +1,8 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-最多支持6张图（不可少于2张），支持无限轮播,指示器位置,加载网络或本地图片.
+Kotlin重构项目，AndroidX，ViewPage2.
+不可少于2张，支持无限轮播,一页多屏,缩放动画,指示器位置,加载网络或本地图片.
 图片加载依赖:Glide
 
 
@@ -22,7 +23,7 @@ allprojects {
 
 ```java
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v1.3.0'
+	        compile 'com.github.chenxyu:android-banner:v2.0.0'
 	}
 ```
 
