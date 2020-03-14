@@ -4,11 +4,9 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
 
@@ -44,7 +42,6 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
             when (any) {
                 is String -> {
                     val requestOptions = RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                     mPlaceholder?.let { requestOptions.placeholder(it) }
                     mError?.let { requestOptions.error(it) }
                     Glide.with(mContext!!)
@@ -55,7 +52,6 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
                 }
                 is Int -> {
                     val requestOptions = RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                     mPlaceholder?.let { requestOptions.placeholder(it) }
                     mError?.let { requestOptions.error(it) }
                     (itemView as ImageView).setImageResource(any)
