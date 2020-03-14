@@ -23,7 +23,7 @@ allprojects {
 
 ```java
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v2.0.1'
+	        compile 'com.github.chenxyu:android-banner:v2.0.3'
 	}
 ```
 
