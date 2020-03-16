@@ -1,6 +1,5 @@
 package com.chenxyu.bannerlibrary
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
@@ -14,6 +13,7 @@ import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import java.lang.ref.WeakReference
 
 
 /**
@@ -36,11 +36,15 @@ class BannerView : LinearLayout {
      */
     var mDelayMillis: Long = 5000
     private var mAdapter: BannerAdapter? = null
-    private val mHandler: Handler = @SuppressLint("HandlerLeak")
-    object : Handler() {
+    private val mHandler: Handler = BannerHandler(this)
+
+    class BannerHandler(view: BannerView) : Handler() {
+        private val weakReference = WeakReference<BannerView>(view)
+
         override fun handleMessage(msg: Message) {
-            if (!isTouch) {
-                mViewPager?.let {
+            val bannerView = weakReference.get()
+            if (!bannerView?.isTouch!!) {
+                bannerView.mViewPager?.let {
                     if (it.currentItem == it.childCount.minus(1)) {
                         it.currentItem = 1
                     } else {
@@ -48,7 +52,7 @@ class BannerView : LinearLayout {
                     }
                 }
             }
-            sendEmptyMessageDelayed(0, mDelayMillis)
+            sendEmptyMessageDelayed(0, bannerView.mDelayMillis)
         }
     }
 
