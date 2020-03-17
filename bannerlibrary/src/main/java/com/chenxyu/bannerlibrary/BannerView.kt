@@ -39,11 +39,11 @@ class BannerView : LinearLayout {
     private val mHandler: Handler = BannerHandler(this)
 
     class BannerHandler(view: BannerView) : Handler() {
-        private val weakReference = WeakReference<BannerView>(view)
+        private val weakReference = WeakReference(view)
 
         override fun handleMessage(msg: Message) {
             val bannerView = weakReference.get()
-            if (!bannerView?.isTouch!!) {
+            if (bannerView?.isTouch != null && !bannerView.isTouch) {
                 bannerView.mViewPager?.let {
                     if (it.currentItem == it.childCount.minus(1)) {
                         it.currentItem = 1
@@ -52,7 +52,7 @@ class BannerView : LinearLayout {
                     }
                 }
             }
-            sendEmptyMessageDelayed(0, bannerView.mDelayMillis)
+            bannerView?.mDelayMillis?.let { sendEmptyMessageDelayed(0, it) }
         }
     }
 
