@@ -303,7 +303,7 @@ class BannerView : LinearLayout {
     interface OnItemClickListener {
         /**
          * @param view itemView
-         * @param position 0,1,2,3...
+         * @param position 1 2 3 ...
          */
         fun onItemClick(view: View?, position: Int)
     }
