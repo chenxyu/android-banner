@@ -1,9 +1,10 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-Kotlin重构项目，AndroidX，ViewPage2.
-不可少于2张，支持无限轮播,一页多屏,缩放动画,指示器位置,加载网络或本地图片.
-图片加载依赖:Glide
+Kotlin重构项目,AndroidX,ViewPage2.
+支持无限轮播,一页多屏,缩放动画,指示器位置,加载网络或本地图片,自定义Glide RequestOptions.
+
+图片加载依赖:Glide 4.11.0
 
 
 # Gradle 依赖
@@ -23,7 +24,7 @@ allprojects {
 
 ```java
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v2.0.4'
+	        compile 'com.github.chenxyu:android-banner:v2.1.0'
 	}
 ```
 
@@ -38,15 +39,17 @@ dependencies {
 ```
 
 ```java
-    mBannerView = (BannerView) findViewById(R.id.banner_view);
-    mBannerView.addUrl(mImagePaths, R.mipmap.ic_launcher, R.mipmap.ic_launcher, ImageView.ScaleType.CENTER_CROP);
-```
+    mBannerView.setLifecycle(this)
+                    .setPlaceholder(R.mipmap.ic_launcher)
+                    .setError(R.mipmap.ic_launcher)
+                    .setScaleType(ImageView.ScaleType.CENTER_CROP)
+                    .setOnItemClickListener(this)
+                    .setUrls(mImageUrls)
+                    .build();
 
-```java
-    mBannerView.addOnItemClickListener(new BannerView.OnItemClickListener() {
-                @Override
-                public void onItemClick(int position) {
-                    Toast.makeText(MainActivity.this, position + "", Toast.LENGTH_SHORT).show();
-                }
-            });
+    @Override
+        public void onItemClick(View view, int position) {
+            Toast.makeText(MainActivity.this, String.valueOf(position),
+                    Toast.LENGTH_SHORT).show();
+        }
 ```
