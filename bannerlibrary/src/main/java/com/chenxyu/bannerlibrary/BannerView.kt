@@ -11,8 +11,12 @@ import android.widget.ImageView.ScaleType
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.request.RequestOptions
 import java.lang.ref.WeakReference
 
 
@@ -31,6 +35,11 @@ class BannerView : LinearLayout {
     private val mIndicators = mutableListOf<ImageView>()
     private var mOnItemClickListener: OnItemClickListener? = null
     private var isTouch = false
+    private var placeholder: Int? = null
+    private var error: Int? = null
+    private var scaleType: ScaleType? = null
+    private var requestOptions: RequestOptions? = null
+
     /**
      * 页面切换时间(请在addUrl前设置)
      */
@@ -149,128 +158,153 @@ class BannerView : LinearLayout {
     }
 
     /**
-     * 添加一个Item点击事件
-     *
-     * @param listener 点击事件
+     * 根据Fragment或Activity生命周期控制Banner开始和暂停
+     * @param lifecycleOwner Fragment or Activity
      */
-    fun addOnItemClickListener(listener: OnItemClickListener?) {
-        this.mOnItemClickListener = listener
+    fun setLifecycle(lifecycleOwner: LifecycleOwner): BannerView {
+        lifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+                Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
+                else -> {
+                }
+            }
+        })
+        return this
+    }
+
+    /**
+     * 如果你需要自定义Glide RequestOptions
+     * setRequestOptions优先setPlaceholder()setError()
+     */
+    fun setRequestOptions(requestOptions: RequestOptions): BannerView {
+        this.requestOptions = requestOptions
+        return this
+    }
+
+    /**
+     * Indicator显示或隐藏
+     * @param visibility View.GONE or View.VISIBLE or View.INVISIBLE
+     */
+    fun setIndicatorVisibility(visibility: Int): BannerView {
+        mIndicatorLayout!!.visibility = visibility
+        return this
     }
 
     /**
      * 设置Indicator位置(左中右)
      * 默认中
-     *
      * @param gravity 位置
      */
-    fun setIndicatorGravity(gravity: Int) {
+    fun setIndicatorGravity(gravity: Int): BannerView {
         mIndicatorLayout!!.gravity = gravity
+        return this
     }
 
     /**
-     * 设置页面间距(请在addUrl前设置)
-     *
+     * 设置页面间距
      * @param marginPx 间距Px
      */
-    fun setPageMargin(marginPx: Int) {
+    fun setPageMargin(marginPx: Int): BannerView {
         mViewPager?.setPageTransformer(MarginPageTransformer(marginPx))
+        return this
     }
 
     /**
-     * 一屏多页(请在addUrl前设置)
-     *
+     * 一屏多页
      * @param marginPx 间距Px
      */
-    fun setMultiPage(marginPx: Int) {
+    fun setMultiPage(marginPx: Int): BannerView {
         mRootLayout?.clipChildren = false
         mViewPager?.clipChildren = false
         val params = mViewPager?.layoutParams as MarginLayoutParams
         params.leftMargin = marginPx * 2
         params.rightMargin = params.leftMargin
+        return this
     }
 
     /**
-     * 页面缩放动画(请在addUrl前设置)
+     * 页面缩放动画
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun setCompositePageTransformer() {
+    fun setCompositePageTransformer(): BannerView {
         mViewPager?.setPageTransformer(ScaleInTransformer())
+        return this
+    }
+
+    /**
+     * 占位符
+     */
+    fun setPlaceholder(placeholder: Int?): BannerView {
+        this.placeholder = placeholder
+        return this
+    }
+
+    /**
+     * 错误时显示图片
+     */
+    fun setError(error: Int?): BannerView {
+        this.error = error
+        return this
+    }
+
+    /**
+     * 图片显示模式
+     */
+    fun setScaleType(scaleType: ScaleType?): BannerView {
+        this.scaleType = scaleType
+        return this
     }
 
     /**
      * 添加RES资源图片(本地图片)
-     *
      * @param resIds 图片资源ID
      */
-    fun addImageRes(resIds: MutableList<Int?>, placeholder: Int?, error: Int?) {
-        if (resIds.size < 2) throw RuntimeException("Minimum 2 pictures")
-        addImageRes(resIds, placeholder, error, null)
-    }
-
-    /**
-     * 添加RES资源图片(本地图片)
-     *
-     * @param resIds    图片资源ID
-     * @param scaleType ImageView的ScaleType
-     */
-    fun addImageRes(resIds: MutableList<Int?>, placeholder: Int?, error: Int?, scaleType: ScaleType?) {
-        if (resIds.size < 2) throw RuntimeException("Minimum 2 pictures")
+    fun setImageRes(resIds: MutableList<Int?>): BannerView {
+        if (resIds.size < 1) throw RuntimeException("Minimum 1 pictures")
         initIndicator(resIds.size)
         resIds.add(0, resIds[resIds.size - 1])
         resIds.add(resIds.size, resIds[1])
         resIds.forEach { resId ->
             resId?.let { mImages.add(it) }
         }
-        mAdapter = BannerAdapter(mContext, mImages, placeholder,
-                error, scaleType, mOnItemClickListener)
-        initViewPager()
+        return this
     }
 
     /**
      * 添加网络图片或本地图片
-     *
-     * @param urls        图片URL
-     * @param placeholder 加载前图片
-     * @param error       加载错误图片
+     * @param urls 图片URL
      */
-    fun addUrl(urls: MutableList<String?>, placeholder: Int, error: Int) {
-        if (urls.size < 2) throw RuntimeException("Minimum 2 pictures")
-        addUrl(urls, placeholder, error, null)
-    }
-
-    /**
-     * 添加网络图片或本地图片
-     *
-     * @param urls        图片URL
-     * @param placeholder 加载前图片
-     * @param error       加载错误图片
-     * @param scaleType   ImageView的ScaleType
-     */
-    fun addUrl(urls: MutableList<String?>, placeholder: Int?, error: Int?, scaleType: ScaleType?) {
-        if (urls.size < 2) throw RuntimeException("Minimum 2 pictures")
+    fun setUrls(urls: MutableList<String?>): BannerView {
+        if (urls.size < 1) throw RuntimeException("Minimum 1 pictures")
         initIndicator(urls.size)
         urls.add(0, urls[urls.size - 1])
         urls.add(urls.size, urls[1])
         urls.forEach { url ->
             url?.let { mImages.add(it) }
         }
+        return this
+    }
+
+    /**
+     * 添加一个Item点击事件
+     */
+    fun setOnItemClickListener(listener: OnItemClickListener?): BannerView {
+        this.mOnItemClickListener = listener
+        return this
+    }
+
+    fun build() {
         mAdapter = BannerAdapter(mContext, mImages, placeholder,
-                error, scaleType, mOnItemClickListener)
+                error, scaleType, requestOptions, mOnItemClickListener)
         initViewPager()
-    }
-
-    fun onResume() {
-        mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
-    }
-
-    fun onPause() {
-        mHandler.removeMessages(0)
     }
 
     interface OnItemClickListener {
         /**
-         * 0,1,2,3...
+         * @param view itemView
+         * @param position 0,1,2,3...
          */
-        fun onItemClick(position: Int)
+        fun onItemClick(view: View?, position: Int)
     }
 }

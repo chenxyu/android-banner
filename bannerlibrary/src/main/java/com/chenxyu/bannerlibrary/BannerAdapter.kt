@@ -17,9 +17,10 @@ import com.bumptech.glide.request.RequestOptions
  * @Version:       1.0
  */
 class BannerAdapter(private val mContext: Context?, private val mImages: MutableList<Any>,
-                    private var mPlaceholder: Int?, private var mError: Int?,
+                    private val mPlaceholder: Int?, private val mError: Int?,
                     private val mScaleType: ImageView.ScaleType?,
-                    private var mOnItemClickListener: BannerView.OnItemClickListener?)
+                    private val requestOptions: RequestOptions?,
+                    private val mOnItemClickListener: BannerView.OnItemClickListener?)
     : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BannerViewHolder {
@@ -41,14 +42,13 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
         fun bindView(any: Any, position: Int) {
             when (any) {
                 is String -> {
-                    val requestOptions = RequestOptions()
-                    mPlaceholder?.let { requestOptions.placeholder(it) }
-                    mError?.let { requestOptions.error(it) }
+                    val options = RequestOptions()
+                    mPlaceholder?.let { options.placeholder(it) }
+                    mError?.let { options.error(it) }
                     Glide.with(mContext!!)
                             .load(any)
-                            .apply(requestOptions)
+                            .apply(requestOptions ?: options)
                             .transition(withCrossFade())
-                            .into(itemView as ImageView)
                 }
                 is Int -> {
                     val requestOptions = RequestOptions()
@@ -58,7 +58,7 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
                 }
             }
             itemView.setOnClickListener {
-                mOnItemClickListener?.onItemClick(position)
+                mOnItemClickListener?.onItemClick(it, position)
             }
         }
     }
