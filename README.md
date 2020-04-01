@@ -3,6 +3,7 @@
 # android-banner
 Kotlin重构项目,AndroidX,ViewPage2.
 支持无限轮播,一页多屏,缩放动画,指示器位置,加载网络或本地图片,自定义Glide RequestOptions.
+根据Fragment或Activity生命周期控制Banner开始和暂停.
 
 图片加载依赖:Glide 4.11.0
 
