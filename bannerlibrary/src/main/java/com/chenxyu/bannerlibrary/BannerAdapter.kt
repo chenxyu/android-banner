@@ -49,6 +49,7 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
                             .load(any)
                             .apply(requestOptions ?: options)
                             .transition(withCrossFade())
+                            .into(itemView as ImageView)
                 }
                 is Int -> {
                     val requestOptions = RequestOptions()
