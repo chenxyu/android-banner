@@ -59,7 +59,12 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
                 }
             }
             itemView.setOnClickListener {
-                mOnItemClickListener?.onItemClick(it, position - 1)
+                val pos = when (position) {
+                    0 -> mImages.size - 2
+                    mImages.size - 1 -> 0
+                    else -> position - 1
+                }
+                mOnItemClickListener?.onItemClick(it, pos)
             }
         }
     }

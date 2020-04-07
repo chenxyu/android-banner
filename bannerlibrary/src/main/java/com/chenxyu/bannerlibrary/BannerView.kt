@@ -166,6 +166,10 @@ class BannerView : LinearLayout {
             when (event) {
                 Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
                 Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
+                Lifecycle.Event.ON_DESTROY -> {
+                    mHandler.removeMessages(0)
+                    mImages.clear()
+                }
                 else -> {
                 }
             }
