@@ -18,7 +18,7 @@ import com.bumptech.glide.request.RequestOptions
  */
 class BannerAdapter(private val mContext: Context?, private val mImages: MutableList<Any>,
                     private val mPlaceholder: Int?, private val mError: Int?,
-                    private val mScaleType: ImageView.ScaleType?,
+                    private val mScaleType: ImageView.ScaleType?, private val imgMarginPx: Int?,
                     private val requestOptions: RequestOptions?,
                     private val mOnItemClickListener: BannerView.OnItemClickListener?)
     : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
@@ -26,6 +26,7 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BannerViewHolder {
         val imageView = ImageView(mContext)
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        imgMarginPx?.let { layoutParams.setMargins(it, 0, it, 0) }
         imageView.layoutParams = layoutParams
         if (mScaleType != null) imageView.scaleType = mScaleType
         return BannerViewHolder(imageView)

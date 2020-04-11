@@ -39,11 +39,9 @@ class BannerView : LinearLayout {
     private var error: Int? = null
     private var scaleType: ScaleType? = null
     private var requestOptions: RequestOptions? = null
-
-    /**
-     * 页面切换时间(请在addUrl前设置)
-     */
-    var mDelayMillis: Long = 5000
+    private var lifecycleOwner: LifecycleOwner? = null
+    private var imgMarginPx: Int? = null
+    private var delayMillis: Long = 5000
     private var mAdapter: BannerAdapter? = null
     private val mHandler: Handler = BannerHandler(this)
 
@@ -61,7 +59,7 @@ class BannerView : LinearLayout {
                     }
                 }
             }
-            bannerView?.mDelayMillis?.let { sendEmptyMessageDelayed(0, it) }
+            bannerView?.delayMillis?.let { sendEmptyMessageDelayed(0, it) }
         }
     }
 
@@ -106,7 +104,7 @@ class BannerView : LinearLayout {
                             it.endFakeDrag()
                             isTouch = false
                             mHandler.removeMessages(0)
-                            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+                            mHandler.sendEmptyMessageDelayed(0, delayMillis)
                             if (it.currentItem == 0) {
                                 it.setCurrentItem(mImages.size - 2, false)
                             }
@@ -121,7 +119,7 @@ class BannerView : LinearLayout {
                             it.endFakeDrag()
                             isTouch = false
                             mHandler.removeMessages(0)
-                            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+                            mHandler.sendEmptyMessageDelayed(0, delayMillis)
                         }
                     }
                 }
@@ -153,7 +151,22 @@ class BannerView : LinearLayout {
                     }
                 }
             })
-            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+
+            lifecycleOwner?.lifecycle?.addObserver(LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, delayMillis)
+                    Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
+                    Lifecycle.Event.ON_DESTROY -> {
+                        mHandler.removeMessages(0)
+                        mImages.clear()
+                        mAdapter = null
+                    }
+                    else -> {
+                    }
+                }
+            })
+
+            mHandler.sendEmptyMessageDelayed(0, delayMillis)
         }
     }
 
@@ -162,27 +175,24 @@ class BannerView : LinearLayout {
      * @param lifecycleOwner Fragment or Activity
      */
     fun setLifecycle(lifecycleOwner: LifecycleOwner): BannerView {
-        lifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
-                Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
-                Lifecycle.Event.ON_DESTROY -> {
-                    mHandler.removeMessages(0)
-                    mImages.clear()
-                }
-                else -> {
-                }
-            }
-        })
+        this.lifecycleOwner = lifecycleOwner
         return this
     }
 
     /**
-     * 如果你需要自定义Glide RequestOptions
+     * 自定义Glide RequestOptions
      * setRequestOptions优先setPlaceholder()setError()
      */
     fun setRequestOptions(requestOptions: RequestOptions): BannerView {
         this.requestOptions = requestOptions
+        return this
+    }
+
+    /**
+     * 页面切换时间
+     */
+    fun setDelayMillis(delayMillis: Long): BannerView {
+        this.delayMillis = delayMillis
         return this
     }
 
@@ -217,14 +227,24 @@ class BannerView : LinearLayout {
     /**
      * 一屏多页
      * @param marginPx 间距Px
+     * @param imgMarginPx 图片Margin
      */
-    fun setMultiPage(marginPx: Int): BannerView {
+    fun setMultiPage(marginPx: Int, imgMarginPx: Int?): BannerView {
+        this.imgMarginPx = imgMarginPx
         mRootLayout?.clipChildren = false
         mViewPager?.clipChildren = false
         val params = mViewPager?.layoutParams as MarginLayoutParams
         params.leftMargin = marginPx * 2
         params.rightMargin = params.leftMargin
         return this
+    }
+
+    /**
+     * 一屏多页
+     * @param marginPx 间距Px
+     */
+    fun setMultiPage(marginPx: Int): BannerView {
+        return setMultiPage(marginPx, null)
     }
 
     /**
@@ -261,10 +281,10 @@ class BannerView : LinearLayout {
     }
 
     /**
-     * 添加RES资源图片(本地图片)
+     * 添加RES资源图片
      * @param resIds 图片资源ID
      */
-    fun setImageRes(resIds: MutableList<Int?>): BannerView {
+    fun setResIds(resIds: MutableList<Int?>): BannerView {
         if (resIds.size < 1) throw RuntimeException("Minimum 1 pictures")
         initIndicator(resIds.size)
         resIds.add(0, resIds[resIds.size - 1])
@@ -299,8 +319,8 @@ class BannerView : LinearLayout {
     }
 
     fun build() {
-        mAdapter = BannerAdapter(mContext, mImages, placeholder,
-                error, scaleType, requestOptions, mOnItemClickListener)
+        mAdapter = BannerAdapter(mContext, mImages, placeholder, error, scaleType,
+                imgMarginPx, requestOptions, mOnItemClickListener)
         initViewPager()
     }
 

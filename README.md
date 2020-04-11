@@ -1,9 +1,10 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-Kotlin重构项目,AndroidX,ViewPage2.
-支持无限轮播,一页多屏,缩放动画,指示器位置,加载网络或本地图片,自定义Glide RequestOptions.
-根据Fragment或Activity生命周期控制Banner开始和暂停.
+Kotlin重构项目，AndroidX，ViewPage2。
+支持无限轮播，一页多屏，缩放动画，指示器位置，加载网络或本地图片。
+自定义Glide RequestOptions。
+设置Lifecycle观察Activity或Fragment生命周期控制开始和暂停。
 
 图片加载依赖:Glide 4.11.0
 
@@ -25,7 +26,7 @@ allprojects {
 
 ```java
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v2.1.2'
+	        compile 'com.github.chenxyu:android-banner:v2.1.3'
 	}
 ```
 
@@ -40,17 +41,18 @@ dependencies {
 ```
 
 ```java
+    // 简单使用
     mBannerView.setLifecycle(this)
-                    .setPlaceholder(R.mipmap.ic_launcher)
-                    .setError(R.mipmap.ic_launcher)
-                    .setScaleType(ImageView.ScaleType.CENTER_CROP)
-                    .setOnItemClickListener(this)
-                    .setUrls(mImageUrls)
-                    .build();
-
+            .setPlaceholder(R.mipmap.ic_launcher)
+            .setError(R.mipmap.ic_launcher)
+            .setScaleType(ImageView.ScaleType.CENTER_CROP)
+            .setOnItemClickListener(this)
+            .setUrls(mImageUrls)
+            .setAdapter()
+            .build();
     @Override
-        public void onItemClick(View view, int position) {
-            Toast.makeText(MainActivity.this, String.valueOf(position),
-                    Toast.LENGTH_SHORT).show();
-        }
+    public void onItemClick(View view, int position) {
+        Toast.makeText(MainActivity.this, String.valueOf(position),
+                Toast.LENGTH_SHORT).show();
+    }
 ```
