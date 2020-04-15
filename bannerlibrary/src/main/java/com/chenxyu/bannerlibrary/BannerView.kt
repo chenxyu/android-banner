@@ -1,24 +1,30 @@
 package com.chenxyu.bannerlibrary
 
 import android.content.Context
-import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.ImageView.ScaleType
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import androidx.annotation.RequiresApi
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.request.RequestOptions
+import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
+import com.chenxyu.bannerlibrary.adapter.ImageViewAdapter
+import com.chenxyu.bannerlibrary.listener.OnItemClickListener
+import com.chenxyu.bannerlibrary.transformer.DepthPageTransformer
+import com.chenxyu.bannerlibrary.transformer.RotationPageTransformer
+import com.chenxyu.bannerlibrary.transformer.ScalePageTransformer
+import com.chenxyu.bannerlibrary.transformer.ZoomOutPageTransformer
 import java.lang.ref.WeakReference
-
 
 /**
  * @Author:        ChenXingYu
@@ -26,24 +32,37 @@ import java.lang.ref.WeakReference
  * @Description:
  * @Version:       1.0
  */
-class BannerView : LinearLayout {
+class BannerView : RelativeLayout {
     private var mContext: Context? = null
     private var mRootLayout: RelativeLayout? = null
-    private var mViewPager: ViewPager2? = null
-    private var mIndicatorLayout: LinearLayout? = null
+    var mViewPager: ViewPager2? = null
+    private var mBottomIndicatorLayout: LinearLayout? = null
+    private var mEndIndicatorLayout: LinearLayout? = null
     private val mImages = mutableListOf<Any>()
-    private val mIndicators = mutableListOf<ImageView>()
+    private var mIndicators: MutableList<ImageView>? = null
+    private var mIndicatorUnselected: Int? = null
+    private var mIndicatorSelected: Int? = null
+    private var mIndicatorWH = 20
+    private var mIndicatorMargin = 8
+    private var mDataSize: Int = 0
+    private var mIndicatorSize: Int = 0
     private var mOnItemClickListener: OnItemClickListener? = null
     private var isTouch = false
-    private var placeholder: Int? = null
-    private var error: Int? = null
-    private var scaleType: ScaleType? = null
-    private var requestOptions: RequestOptions? = null
-    private var lifecycleOwner: LifecycleOwner? = null
-    private var imgMarginPx: Int? = null
-    private var delayMillis: Long = 5000
-    private var mAdapter: BannerAdapter? = null
+    private var mPlaceholder: Int? = null
+    private var mError: Int? = null
+    private var mScaleType: ScaleType? = null
+    private var mRequestOptions: RequestOptions? = null
+    private var mLifecycleOwner: LifecycleOwner? = null
+    private var mDelayMillis: Long = 5000
+    private var isLoopViews: Boolean = true
+    private var mImageViewAdapter: ImageViewAdapter? = null
+    private var mBaseBannerAdapter: BaseBannerAdapter<*, *>? = null
     private val mHandler: Handler = BannerHandler(this)
+
+    companion object {
+        const val HORIZONTAL = ViewPager2.ORIENTATION_HORIZONTAL
+        const val VERTICAL = ViewPager2.ORIENTATION_VERTICAL
+    }
 
     class BannerHandler(view: BannerView) : Handler() {
         private val weakReference = WeakReference(view)
@@ -53,13 +72,22 @@ class BannerView : LinearLayout {
             if (bannerView?.isTouch != null && !bannerView.isTouch) {
                 bannerView.mViewPager?.let {
                     if (it.currentItem == it.childCount.minus(1)) {
-                        it.currentItem = 1
+                        it.setCurrentItem(1, false)
                     } else {
-                        it.currentItem = it.currentItem.plus(1)
+                        it.beginFakeDrag()
+                        if (it.orientation == HORIZONTAL) {
+                            if (it.fakeDragBy(-it.width.toFloat() / 2)) {
+                                it.endFakeDrag()
+                            }
+                        } else {
+                            if (it.fakeDragBy(-it.height.toFloat() / 2)) {
+                                it.endFakeDrag()
+                            }
+                        }
                     }
                 }
             }
-            bannerView?.delayMillis?.let { sendEmptyMessageDelayed(0, it) }
+            bannerView?.mDelayMillis?.let { sendEmptyMessageDelayed(0, it) }
         }
     }
 
@@ -68,6 +96,34 @@ class BannerView : LinearLayout {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
         this.mContext = context
         init()
+        val attributes = context?.obtainStyledAttributes(attrs, R.styleable.BannerView)
+        attributes?.let {
+            mViewPager?.orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
+            it.getResourceId(R.styleable.BannerView_indicatorUnselected, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mIndicatorUnselected = this }
+            it.getResourceId(R.styleable.BannerView_indicatorSelected, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mIndicatorSelected = this }
+            it.getDimension(R.styleable.BannerView_indicatorWH, 0f).takeIf { dimension ->
+                dimension > 0f
+            }?.apply { mIndicatorWH = this.toInt() }
+            it.getDimension(R.styleable.BannerView_indicatorMargin, 0f).takeIf { dimension ->
+                dimension > 0f
+            }?.apply { mIndicatorMargin = this.toInt() }
+            mBottomIndicatorLayout?.gravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
+            mEndIndicatorLayout?.gravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
+            mBottomIndicatorLayout?.visibility = it.getInteger(R.styleable.BannerView_indicatorVisibility, View.VISIBLE)
+            mEndIndicatorLayout?.visibility = it.getInteger(R.styleable.BannerView_indicatorVisibility, View.VISIBLE)
+            isLoopViews = it.getBoolean(R.styleable.BannerView_loopViews, true)
+            it.getResourceId(R.styleable.BannerView_placeholderDrawable, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mPlaceholder = this }
+            it.getResourceId(R.styleable.BannerView_errorDrawable, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mError = this }
+        }
+        attributes?.recycle()
     }
 
     private fun init() {
@@ -75,26 +131,35 @@ class BannerView : LinearLayout {
         addView(view)
         mRootLayout = view.findViewById(R.id.root_layout)
         mViewPager = view.findViewById(R.id.view_pager)
-        mIndicatorLayout = view.findViewById(R.id.indicator_layout)
+        mBottomIndicatorLayout = view.findViewById(R.id.bottom_indicator_layout)
+        mEndIndicatorLayout = view.findViewById(R.id.end_indicator_layout)
     }
 
-    private fun initIndicator(size: Int) {
-        repeat(size) {
+    private fun initIndicator() {
+        mIndicators = mutableListOf()
+        repeat(mIndicatorSize) {
             val indicators = ImageView(mContext)
-            indicators.setImageResource(R.drawable.banner_indicator_gray)
-            val layoutParams = LayoutParams(16, 16)
-            layoutParams.setMargins(6, 0, 6, 0)
-            indicators.layoutParams = layoutParams
-            mIndicatorLayout?.addView(indicators)
-            mIndicators.add(indicators)
+            indicators.setImageResource(mIndicatorUnselected ?: R.drawable.indicator_gray)
+            val layoutParams = LayoutParams(mIndicatorWH, mIndicatorWH)
+            if (mViewPager?.orientation == HORIZONTAL) {
+                layoutParams.setMargins(mIndicatorMargin, 0, mIndicatorMargin, 0)
+                indicators.layoutParams = layoutParams
+                mBottomIndicatorLayout?.addView(indicators)
+            } else {
+                layoutParams.setMargins(0, mIndicatorMargin, 0, mIndicatorMargin)
+                indicators.layoutParams = layoutParams
+                mEndIndicatorLayout?.addView(indicators)
+            }
+            mIndicators?.add(indicators)
         }
-        mIndicators[0].setImageResource(R.drawable.banner_indicator_white)
+        mIndicators?.get(0)?.setImageResource(mIndicatorSelected
+                ?: R.drawable.indicator_white)
     }
 
     private fun initViewPager() {
         mViewPager?.let {
             it.offscreenPageLimit = 2
-            it.adapter = mAdapter
+            it.adapter = mBaseBannerAdapter ?: mImageViewAdapter
             it.currentItem = 1
             it.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
@@ -104,11 +169,11 @@ class BannerView : LinearLayout {
                             it.endFakeDrag()
                             isTouch = false
                             mHandler.removeMessages(0)
-                            mHandler.sendEmptyMessageDelayed(0, delayMillis)
+                            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
                             if (it.currentItem == 0) {
-                                it.setCurrentItem(mImages.size - 2, false)
+                                it.setCurrentItem(mDataSize - 2, false)
                             }
-                            if (it.currentItem == mImages.size - 1) {
+                            if (it.currentItem == mDataSize - 1) {
                                 it.setCurrentItem(1, false)
                             }
                         }
@@ -119,32 +184,39 @@ class BannerView : LinearLayout {
                             it.endFakeDrag()
                             isTouch = false
                             mHandler.removeMessages(0)
-                            mHandler.sendEmptyMessageDelayed(0, delayMillis)
+                            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
                         }
                     }
                 }
 
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
-                    for (indicator in mIndicators) {
-                        indicator.setImageResource(R.drawable.banner_indicator_gray)
-                    }
-                    for (i in mIndicators.indices) {
-                        when {
-                            position == 0 -> {
-                                mIndicators[mIndicators.size - 1].setImageResource(R.drawable.banner_indicator_white)
+                    mIndicators?.let { indicators ->
+                        for (indicator in indicators) {
+                            indicator.setImageResource(mIndicatorUnselected
+                                    ?: R.drawable.indicator_gray)
+                        }
+                        when (position) {
+                            0 -> {
+                                indicators[indicators.size - 1].setImageResource(mIndicatorSelected
+                                        ?: R.drawable.indicator_white)
                                 return
                             }
-                            position == mImages.size - 1 -> {
-                                mIndicators[0].setImageResource(R.drawable.banner_indicator_white)
+                            mDataSize - 1 -> {
+                                indicators[0].setImageResource(mIndicatorSelected
+                                        ?: R.drawable.indicator_white)
                                 return
                             }
-                            position == mImages.size - 2 -> {
-                                mIndicators[mIndicators.size - 1].setImageResource(R.drawable.banner_indicator_white)
+                            mDataSize - 2 -> {
+                                indicators[indicators.size - 1].setImageResource(mIndicatorSelected
+                                        ?: R.drawable.indicator_white)
                                 return
                             }
-                            i == position -> {
-                                mIndicators[i - 1].setImageResource(R.drawable.banner_indicator_white)
+                        }
+                        for (i in indicators.indices) {
+                            if (position == i) {
+                                indicators[i - 1].setImageResource(mIndicatorSelected
+                                        ?: R.drawable.indicator_white)
                                 return
                             }
                         }
@@ -152,39 +224,86 @@ class BannerView : LinearLayout {
                 }
             })
 
-            lifecycleOwner?.lifecycle?.addObserver(LifecycleEventObserver { _, event ->
+            mLifecycleOwner?.lifecycle?.addObserver(LifecycleEventObserver { _, event ->
                 when (event) {
-                    Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, delayMillis)
+                    Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
                     Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
                     Lifecycle.Event.ON_DESTROY -> {
                         mHandler.removeMessages(0)
                         mImages.clear()
-                        mAdapter = null
+                        mBaseBannerAdapter?.getData()?.clear()
+                        mDataSize = 0
+                        mIndicatorSize = 0
                     }
                     else -> {
                     }
                 }
             })
 
-            mHandler.sendEmptyMessageDelayed(0, delayMillis)
+            if (isLoopViews) {
+                mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+            }
         }
     }
 
     /**
-     * 根据Fragment或Activity生命周期控制Banner开始和暂停
+     * 观察Fragment或Activity生命周期控制Banner开始和暂停
      * @param lifecycleOwner Fragment or Activity
      */
     fun setLifecycle(lifecycleOwner: LifecycleOwner): BannerView {
-        this.lifecycleOwner = lifecycleOwner
+        this.mLifecycleOwner = lifecycleOwner
         return this
     }
 
     /**
-     * 自定义Glide RequestOptions
-     * setRequestOptions优先setPlaceholder()setError()
+     * 自定义Adapter（继承BaseBannerAdapter）
+     * @param baseBannerAdapter 自定义Adapter
      */
-    fun setRequestOptions(requestOptions: RequestOptions): BannerView {
-        this.requestOptions = requestOptions
+    fun setAdapter(baseBannerAdapter: BaseBannerAdapter<*, *>): BannerView {
+        this.mBaseBannerAdapter = baseBannerAdapter.apply {
+            mIndicatorSize = getRealItemCount()
+            mDataSize = itemCount
+        }
+        return this
+    }
+
+    /**
+     * 是否循环
+     */
+    fun isLoopViews(loop: Boolean): BannerView {
+        this.isLoopViews = loop
+        return this
+    }
+
+    /**
+     * 未选中指示器DrawableRes
+     */
+    fun setIndicatorUnselected(@DrawableRes indicatorUnselected: Int?): BannerView {
+        this.mIndicatorUnselected = indicatorUnselected
+        return this
+    }
+
+    /**
+     * 选中指示器DrawableRes
+     */
+    fun setIndicatorSelected(@DrawableRes indicatorSelected: Int?): BannerView {
+        this.mIndicatorSelected = indicatorSelected
+        return this
+    }
+
+    /**
+     * 指示器宽高
+     */
+    fun setIndicatorWH(indicatorWH: Int): BannerView {
+        this.mIndicatorWH = indicatorWH
+        return this
+    }
+
+    /**
+     * 指示器Margin
+     */
+    fun setIndicatorMargin(indicatorMargin: Int): BannerView {
+        this.mIndicatorMargin = indicatorMargin
         return this
     }
 
@@ -192,26 +311,28 @@ class BannerView : LinearLayout {
      * 页面切换时间
      */
     fun setDelayMillis(delayMillis: Long): BannerView {
-        this.delayMillis = delayMillis
+        this.mDelayMillis = delayMillis
         return this
     }
 
     /**
-     * Indicator显示或隐藏
+     * 指示器显示或隐藏
      * @param visibility View.GONE or View.VISIBLE or View.INVISIBLE
      */
     fun setIndicatorVisibility(visibility: Int): BannerView {
-        mIndicatorLayout!!.visibility = visibility
+        mBottomIndicatorLayout?.visibility = visibility
+        mEndIndicatorLayout?.visibility = visibility
         return this
     }
 
     /**
-     * 设置Indicator位置(左中右)
+     * 设置指示器位置
      * 默认中
-     * @param gravity 位置
+     * @param gravity 位置[Gravity]
      */
     fun setIndicatorGravity(gravity: Int): BannerView {
-        mIndicatorLayout!!.gravity = gravity
+        mBottomIndicatorLayout?.gravity = gravity
+        mEndIndicatorLayout?.gravity = gravity
         return this
     }
 
@@ -225,58 +346,93 @@ class BannerView : LinearLayout {
     }
 
     /**
-     * 一屏多页
-     * @param marginPx 间距Px
-     * @param imgMarginPx 图片Margin
+     * 滑动方向
+     * @param orientation [HORIZONTAL][VERTICAL]
      */
-    fun setMultiPage(marginPx: Int, imgMarginPx: Int?): BannerView {
-        this.imgMarginPx = imgMarginPx
-        mRootLayout?.clipChildren = false
-        mViewPager?.clipChildren = false
-        val params = mViewPager?.layoutParams as MarginLayoutParams
-        params.leftMargin = marginPx * 2
-        params.rightMargin = params.leftMargin
+    fun setOrientation(orientation: Int): BannerView {
+        mViewPager?.orientation = orientation
         return this
     }
 
     /**
-     * 一屏多页
+     * 一屏多页，在[setOrientation]之后设置
      * @param marginPx 间距Px
      */
     fun setMultiPage(marginPx: Int): BannerView {
-        return setMultiPage(marginPx, null)
+        mRootLayout?.clipChildren = false
+        mViewPager?.clipChildren = false
+        val params = mViewPager?.layoutParams as MarginLayoutParams
+        if (mViewPager?.orientation == HORIZONTAL) {
+            params.leftMargin = marginPx * 2
+            params.rightMargin = params.leftMargin
+        } else {
+            params.topMargin = marginPx * 2
+            params.bottomMargin = params.topMargin
+        }
+        return this
     }
 
     /**
-     * 页面缩放动画
+     * 缩放动画，在[setOrientation]之后设置
      */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun setCompositePageTransformer(): BannerView {
-        mViewPager?.setPageTransformer(ScaleInTransformer())
+    fun setScalePageTransformer(): BannerView {
+        mViewPager?.let { setPageTransformer(ScalePageTransformer(it.orientation)) }
+        return this
+    }
+
+    /**
+     * 官方示例缩放动画，在[setOrientation]之后设置
+     */
+    fun setZoomOutPageTransformer(): BannerView {
+        mViewPager?.let { setPageTransformer(ZoomOutPageTransformer(it.orientation)) }
+        return this
+    }
+
+    /**
+     * 官方示例旋转动画，在[setOrientation]之后设置
+     */
+    fun setRotationPageTransformer(): BannerView {
+        mViewPager?.let { setPageTransformer(RotationPageTransformer(it.orientation)) }
+        return this
+    }
+
+    /**
+     * 官方示例深度动画，在[setOrientation]之后设置
+     */
+    fun setDepthPageTransformer(): BannerView {
+        mViewPager?.let { setPageTransformer(DepthPageTransformer(it.orientation)) }
+        return this
+    }
+
+    /**
+     * 自定义动画
+     */
+    fun setPageTransformer(transformer: ViewPager2.PageTransformer): BannerView {
+        mViewPager?.setPageTransformer(transformer)
         return this
     }
 
     /**
      * 占位符
      */
-    fun setPlaceholder(placeholder: Int?): BannerView {
-        this.placeholder = placeholder
+    fun setPlaceholder(@DrawableRes placeholder: Int?): BannerView {
+        this.mPlaceholder = placeholder
         return this
     }
 
     /**
      * 错误时显示图片
      */
-    fun setError(error: Int?): BannerView {
-        this.error = error
+    fun setError(@DrawableRes error: Int?): BannerView {
+        this.mError = error
         return this
     }
 
     /**
-     * 图片显示模式
+     * 图片缩放类型
      */
     fun setScaleType(scaleType: ScaleType?): BannerView {
-        this.scaleType = scaleType
+        this.mScaleType = scaleType
         return this
     }
 
@@ -286,27 +442,29 @@ class BannerView : LinearLayout {
      */
     fun setResIds(resIds: MutableList<Int?>): BannerView {
         if (resIds.size < 1) throw RuntimeException("Minimum 1 pictures")
-        initIndicator(resIds.size)
+        mIndicatorSize = resIds.size
         resIds.add(0, resIds[resIds.size - 1])
         resIds.add(resIds.size, resIds[1])
         resIds.forEach { resId ->
             resId?.let { mImages.add(it) }
         }
+        mDataSize = mImages.size
         return this
     }
 
     /**
-     * 添加网络图片或本地图片
+     * 添加网络图片
      * @param urls 图片URL
      */
     fun setUrls(urls: MutableList<String?>): BannerView {
         if (urls.size < 1) throw RuntimeException("Minimum 1 pictures")
-        initIndicator(urls.size)
+        mIndicatorSize = urls.size
         urls.add(0, urls[urls.size - 1])
         urls.add(urls.size, urls[1])
         urls.forEach { url ->
             url?.let { mImages.add(it) }
         }
+        mDataSize = mImages.size
         return this
     }
 
@@ -318,18 +476,43 @@ class BannerView : LinearLayout {
         return this
     }
 
+    /**
+     * 开始构建Banner
+     */
     fun build() {
-        mAdapter = BannerAdapter(mContext, mImages, placeholder, error, scaleType,
-                imgMarginPx, requestOptions, mOnItemClickListener)
+        if (mBaseBannerAdapter == null) {
+            mImageViewAdapter = ImageViewAdapter(mContext, mImages, mPlaceholder, mError,
+                    mScaleType, mRequestOptions, mOnItemClickListener)
+        }
+
+        if (mViewPager?.orientation == HORIZONTAL) {
+            mBottomIndicatorLayout?.visibility = View.VISIBLE
+            mEndIndicatorLayout?.visibility = View.GONE
+        } else {
+            mBottomIndicatorLayout?.visibility = View.GONE
+            mEndIndicatorLayout?.visibility = View.VISIBLE
+        }
+
+        initIndicator()
         initViewPager()
     }
 
-    interface OnItemClickListener {
-        /**
-         * @param view itemView
-         * @param position 0 1 2 3 ...
-         */
-        fun onItemClick(view: View?, position: Int)
+    /**
+     * 开始循环
+     */
+    fun start() {
+        if (mDataSize > 0) {
+            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+        }
+    }
+
+    /**
+     * 暂停循环
+     */
+    fun pause() {
+        if (mDataSize > 0) {
+            mHandler.removeMessages(0)
+        }
     }
 
 }

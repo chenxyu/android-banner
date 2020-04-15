@@ -1,4 +1,4 @@
-package com.chenxyu.bannerlibrary
+package com.chenxyu.bannerlibrary.adapter
 
 import android.content.Context
 import android.view.View
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
+import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 
 /**
  * @Author:        ChenXingYu
@@ -16,17 +17,16 @@ import com.bumptech.glide.request.RequestOptions
  * @Description:
  * @Version:       1.0
  */
-class BannerAdapter(private val mContext: Context?, private val mImages: MutableList<Any>,
-                    private val mPlaceholder: Int?, private val mError: Int?,
-                    private val mScaleType: ImageView.ScaleType?, private val imgMarginPx: Int?,
-                    private val requestOptions: RequestOptions?,
-                    private val mOnItemClickListener: BannerView.OnItemClickListener?)
-    : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
+class ImageViewAdapter(private val mContext: Context?, private val mImages: MutableList<Any>,
+                       private val mPlaceholder: Int?, private val mError: Int?,
+                       private val mScaleType: ImageView.ScaleType?,
+                       private val mRequestOptions: RequestOptions?,
+                       private val mOnItemClickListener: OnItemClickListener?)
+    : RecyclerView.Adapter<ImageViewAdapter.BannerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BannerViewHolder {
         val imageView = ImageView(mContext)
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        imgMarginPx?.let { layoutParams.setMargins(it, 0, it, 0) }
         imageView.layoutParams = layoutParams
         if (mScaleType != null) imageView.scaleType = mScaleType
         return BannerViewHolder(imageView)
@@ -48,7 +48,7 @@ class BannerAdapter(private val mContext: Context?, private val mImages: Mutable
                     mError?.let { options.error(it) }
                     Glide.with(mContext!!)
                             .load(any)
-                            .apply(requestOptions ?: options)
+                            .apply(mRequestOptions ?: options)
                             .transition(withCrossFade())
                             .into(itemView as ImageView)
                 }

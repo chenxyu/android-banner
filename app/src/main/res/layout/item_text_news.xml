@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_news"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:drawableStart="@drawable/ic_new"
+    android:drawableLeft="@drawable/ic_new"
+    android:drawablePadding="8dp"
+    android:ellipsize="end"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:lines="1"
+    android:maxLines="1"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    tools:text="666666" />
