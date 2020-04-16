@@ -1,32 +1,11 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-Kotlin重构项目，AndroidX，ViewPage2。
-支持无限轮播，一页多屏，动画，自定义动画，指示器位置大小颜色，自定义Adapter（继承BaseBannerAdapter）等。
-设置Lifecycle观察Activity或Fragment生命周期控制开始和暂停。
-图片加载依赖:Glide 4.11.0
+一个4年前的开源库为了支持AndroidX用Kotlin重构，滑动使用 `ViewPage2` ，自带图片轮播Adapter（图片加载依赖: `Glide 4.11.0` ）和4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
+使用AndroidX的 `Activity` 或 `Fragment` 都实现了 `LifecycleOwner` 接口，只需传入当前 `Lifecycle` 会根据当前生命周期管理 Banner开始和暂停。
+[https://github.com/chenxyu/android-banner](https://github.com/chenxyu/android-banner)
 
-
-# Gradle 依赖
-
-1.root build.gradle
-
-```kotlin
-allprojects {
-		repositories {
-			...
-			maven { url "https://jitpack.io" }
-		}
-	}
-```
-
-2.app build.gradle
-
-```kotlin
-dependencies {
-	        compile 'com.github.chenxyu:android-banner:v2.2.0'
-	}
-```
+![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
 # 使用方法
 
@@ -66,6 +45,37 @@ dependencies {
         Toast.makeText(this@MainActivity, position.toString(),
                 Toast.LENGTH_SHORT).show()
     }
+```
+`BaseBannerAdapter` 支持 `OnItemClickListener` 和 `OnItemLongClickListener`，通过ClickListener获取的 `position` 都是真实的。在自定义 `Adapter` 里使用 `getItemCount` 和 `getData` 获取数据，如果需要真实位置和数据需要使用 `getReal` 开头的方法获取，每个方法都有注释。
+
+```kotlin
+/**
+ * @Author:        ChenXingYu
+ * @CreateDate:    2020/4/15 9:46
+ * @Description:
+ * @Version:       1.0
+ */
+class NewsAdapter(data: MutableList<String?>) :
+        BaseBannerAdapter<NewsAdapter.TextViewHolder, String>(data) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewHolder {
+        return TextViewHolder(LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_text_news, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: TextViewHolder, position: Int, item: String?) {
+        holder.initView(item)
+    }
+
+    class TextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        fun initView(item: String?) {
+            val tvNews = itemView.findViewById<TextView>(R.id.tv_news)
+            item?.let { tvNews.text = it }
+        }
+    }
+
+}
 ```
 
 # 设置方法属性
@@ -116,3 +126,4 @@ dependencies {
 | app:loopViews | 是否循环 |
 | app:placeholderDrawable | 占位符 |
 | app:errorDrawable | 错误时显示图片 |
+
