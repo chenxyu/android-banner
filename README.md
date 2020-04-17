@@ -1,7 +1,7 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPage2` ，自带图片轮播Adapter（图片加载依赖: `Glide 4.11.0` ）和4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
+为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPager2` ，自带图片轮播Adapter（图片加载依赖: `Glide 4.11.0` ）和4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
 使用AndroidX的 `Activity` 或 `Fragment` 都实现了 `LifecycleOwner` 接口，只需传入当前 `Lifecycle` 会根据当前生命周期管理 Banner开始和暂停。
 
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
