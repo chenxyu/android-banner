@@ -12,19 +12,19 @@
 
 ```kotlin
 allprojects {
-		repositories {
-			...
-			maven { url "https://jitpack.io" }
-		}
+	repositories {
+		...
+		maven { url "https://jitpack.io" }
 	}
+}
 ```
 
 2.app build.gradle
 
 ```kotlin
 dependencies {
-	        compile 'com.github.chenxyu:android-banner:v2.2.0'
-	}
+	implementation 'com.github.chenxyu:android-banner:v2.2.0'
+}
 ```
 
 # 使用方法
