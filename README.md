@@ -23,7 +23,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:v2.2.0'
+	implementation 'com.github.chenxyu:android-banner:2.2.0'
 }
 ```
 
