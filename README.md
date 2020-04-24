@@ -6,6 +6,27 @@
 
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
+# Gradle 依赖
+
+1.root build.gradle
+
+```kotlin
+allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	}
+```
+
+2.app build.gradle
+
+```kotlin
+dependencies {
+	        compile 'com.github.chenxyu:android-banner:v2.2.0'
+	}
+```
+
 # 使用方法
 
 ```kotlin
