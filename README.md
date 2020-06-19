@@ -1,8 +1,13 @@
 [![](https://jitpack.io/v/chenxyu/android-banner.svg)](https://jitpack.io/#chenxyu/android-banner)
 
 # android-banner
-为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPager2` ，自带图片轮播Adapter（图片加载依赖: `Glide 4.11.0` ）和4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
+为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPager2` ，自带4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
 使用AndroidX的 `Activity` 或 `Fragment` 都实现了 `LifecycleOwner` 接口，只需传入当前 `Lifecycle` 会根据当前生命周期管理 Banner开始和暂停。
+
+v2.3.0
+1.androidx.core:core-ktx:1.2.0 -> 1.3.0
+2.移除ImageViewAdapter，可按照下面提供的代码实现自定义ImageViewAdapter。
+3.增加setOffscreenPageLimit方法。
 
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
@@ -23,7 +28,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.2.0'
+	implementation 'com.github.chenxyu:android-banner:2.3.0'
 }
 ```
 
@@ -40,17 +45,21 @@ dependencies {
         android:layout_width="match_parent"
         android:layout_height="50dp" />
 
-        // 简单使用
+        // 自定义Adapter
+        val mImageViewAdapter = ImageViewAdapter(this, mImageUrls)
         mADBannerView.setLifecycle(this)
-                .setUrls(mImageUrls)
-                .setPlaceholder(R.mipmap.ic_launcher)
-                .setError(R.mipmap.ic_launcher)
-                .setScaleType(ImageView.ScaleType.CENTER_CROP)
+                .setAdapter(mImageViewAdapter)
                 .setOrientation(BannerView.HORIZONTAL)
                 .setMultiPage(20)
                 .setScalePageTransformer()
-                .setOnItemClickListener(this)
                 .build()
+        mImageViewAdapter.onItemClickListener = object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                Toast.makeText(this@MainActivity, position.toString(),
+                        Toast.LENGTH_SHORT).show()
+            }
+
+        }
 
         // 自定义Adapter
         mNewsBannerView.setLifecycle(this)
@@ -58,17 +67,55 @@ dependencies {
                 .setIndicatorVisibility(View.GONE)
                 .setOrientation(BannerView.VERTICAL)
                 .build()
-        mNewsAdapter.onItemClickListener = this
-    }
+        mNewsAdapter.onItemClickListener = object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                Toast.makeText(this@MainActivity, position.toString(),
+                        Toast.LENGTH_SHORT).show()
+            }
 
-    override fun onItemClick(view: View?, position: Int) {
-        Toast.makeText(this@MainActivity, position.toString(),
-                Toast.LENGTH_SHORT).show()
+        }
     }
 ```
 `BaseBannerAdapter` 支持 `OnItemClickListener` 和 `OnItemLongClickListener`，通过ClickListener获取的 `position` 都是真实的。在自定义 `Adapter` 里使用 `getItemCount` 和 `getData` 获取数据，如果需要真实位置和数据需要使用 `getReal` 开头的方法获取，每个方法都有注释。
 
 ```kotlin
+/**
+ * @Author:        ChenXingYu
+ * @CreateDate:    2020/6/19 18:12
+ * @Description:
+ * @Version:       1.0
+ */
+class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<String?>)
+    : BaseBannerAdapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val imageView = ImageView(mContext)
+        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT)
+        imageView.layoutParams = layoutParams
+        imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+        return ImageViewHolder(imageView)
+    }
+
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int, item: String?) {
+        holder.initView(mContext, item)
+    }
+
+    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        fun initView(mContext: Context?, item: String?) {
+            mContext?.let {
+                Glide.with(it)
+                        .load(item)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.mipmap.ic_launcher)
+                        .transition(withCrossFade())
+                        .into(itemView as ImageView)
+            }
+        }
+    }
+}
+
 /**
  * @Author:        ChenXingYu
  * @CreateDate:    2020/4/15 9:46
@@ -106,6 +153,7 @@ class NewsAdapter(data: MutableList<String?>) :
 | setLifecycle | 观察Fragment或Activity生命周期控制Banner开始和暂停 |
 | setAdapter | 自定义Adapter（继承BaseBannerAdapter） |
 | isLoopViews | 是否循环 |
+| setOffscreenPageLimit | 预加载页面限制 |
 | setIndicatorUnselected | 未选中指示器DrawableRes |
 | setIndicatorSelected | 选中指示器DrawableRes |
 | setIndicatorWH | 指示器宽高 |
@@ -121,12 +169,6 @@ class NewsAdapter(data: MutableList<String?>) :
 | setRotationPageTransformer | 官方示例旋转动画，在[setOrientation]之后设置 |
 | setDepthPageTransformer | 官方示例深度动画，在[setOrientation]之后设置 |
 | setPageTransformer | 自定义动画 |
-| setPlaceholder | 占位符 |
-| setError | 错误时显示图片 |
-| setScaleType | 图片缩放类型 |
-| setResIds | 添加RES资源图片 |
-| setUrls | 添加网络图片 |
-| setOnItemClickListener | 添加一个Item点击事件 |
 | build | 开始构建Banner |
 
 | 方法名 | 说明 |
@@ -144,6 +186,5 @@ class NewsAdapter(data: MutableList<String?>) :
 | app:indicatorGravity | 设置指示器位置 |
 | app:indicatorVisibility | 指示器显示或隐藏 |
 | app:loopViews | 是否循环 |
-| app:placeholderDrawable | 占位符 |
-| app:errorDrawable | 错误时显示图片 |
+| app:offscreenPageLimit | 预加载页面限制 |
 

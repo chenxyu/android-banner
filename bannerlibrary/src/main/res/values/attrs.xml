@@ -58,7 +58,6 @@
             <enum name="gone" value="2" />
         </attr>
         <attr name="loopViews" format="boolean" />
-        <attr name="placeholderDrawable" format="reference" />
-        <attr name="errorDrawable" format="reference" />
+        <attr name="offscreenPageLimit" format="integer" />
     </declare-styleable>
 </resources>

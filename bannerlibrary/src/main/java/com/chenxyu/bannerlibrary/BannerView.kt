@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
-import android.widget.ImageView.ScaleType
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.DrawableRes
@@ -16,10 +15,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.request.RequestOptions
 import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
-import com.chenxyu.bannerlibrary.adapter.ImageViewAdapter
-import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.transformer.DepthPageTransformer
 import com.chenxyu.bannerlibrary.transformer.RotationPageTransformer
 import com.chenxyu.bannerlibrary.transformer.ScalePageTransformer
@@ -38,7 +34,6 @@ class BannerView : RelativeLayout {
     var mViewPager: ViewPager2? = null
     private var mBottomIndicatorLayout: LinearLayout? = null
     private var mEndIndicatorLayout: LinearLayout? = null
-    private val mImages = mutableListOf<Any>()
     private var mIndicators: MutableList<ImageView>? = null
     private var mIndicatorUnselected: Int? = null
     private var mIndicatorSelected: Int? = null
@@ -46,16 +41,11 @@ class BannerView : RelativeLayout {
     private var mIndicatorMargin = 8
     private var mDataSize: Int = 0
     private var mIndicatorSize: Int = 0
-    private var mOnItemClickListener: OnItemClickListener? = null
+    private var mOffscreenPageLimit = 2
     private var isTouch = false
-    private var mPlaceholder: Int? = null
-    private var mError: Int? = null
-    private var mScaleType: ScaleType? = null
-    private var mRequestOptions: RequestOptions? = null
     private var mLifecycleOwner: LifecycleOwner? = null
     private var mDelayMillis: Long = 5000
     private var isLoopViews: Boolean = true
-    private var mImageViewAdapter: ImageViewAdapter? = null
     private var mBaseBannerAdapter: BaseBannerAdapter<*, *>? = null
     private val mHandler: Handler = BannerHandler(this)
 
@@ -116,12 +106,7 @@ class BannerView : RelativeLayout {
             mBottomIndicatorLayout?.visibility = it.getInteger(R.styleable.BannerView_indicatorVisibility, View.VISIBLE)
             mEndIndicatorLayout?.visibility = it.getInteger(R.styleable.BannerView_indicatorVisibility, View.VISIBLE)
             isLoopViews = it.getBoolean(R.styleable.BannerView_loopViews, true)
-            it.getResourceId(R.styleable.BannerView_placeholderDrawable, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mPlaceholder = this }
-            it.getResourceId(R.styleable.BannerView_errorDrawable, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mError = this }
+            mOffscreenPageLimit = it.getInteger(R.styleable.BannerView_offscreenPageLimit, mOffscreenPageLimit)
         }
         attributes?.recycle()
     }
@@ -158,8 +143,8 @@ class BannerView : RelativeLayout {
 
     private fun initViewPager() {
         mViewPager?.let {
-            it.offscreenPageLimit = 2
-            it.adapter = mBaseBannerAdapter ?: mImageViewAdapter
+            it.offscreenPageLimit = mOffscreenPageLimit
+            it.adapter = mBaseBannerAdapter
             it.currentItem = 1
             it.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
@@ -230,7 +215,6 @@ class BannerView : RelativeLayout {
                     Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
                     Lifecycle.Event.ON_DESTROY -> {
                         mHandler.removeMessages(0)
-                        mImages.clear()
                         mBaseBannerAdapter?.getData()?.clear()
                         mDataSize = 0
                         mIndicatorSize = 0
@@ -273,6 +257,13 @@ class BannerView : RelativeLayout {
     fun isLoopViews(loop: Boolean): BannerView {
         this.isLoopViews = loop
         return this
+    }
+
+    /**
+     * 预加载页面限制（默认2）
+     */
+    fun setOffscreenPageLimit(@ViewPager2.OffscreenPageLimit limit: Int) {
+        this.mOffscreenPageLimit = limit
     }
 
     /**
@@ -413,77 +404,11 @@ class BannerView : RelativeLayout {
     }
 
     /**
-     * 占位符
-     */
-    fun setPlaceholder(@DrawableRes placeholder: Int?): BannerView {
-        this.mPlaceholder = placeholder
-        return this
-    }
-
-    /**
-     * 错误时显示图片
-     */
-    fun setError(@DrawableRes error: Int?): BannerView {
-        this.mError = error
-        return this
-    }
-
-    /**
-     * 图片缩放类型
-     */
-    fun setScaleType(scaleType: ScaleType?): BannerView {
-        this.mScaleType = scaleType
-        return this
-    }
-
-    /**
-     * 添加RES资源图片
-     * @param resIds 图片资源ID
-     */
-    fun setResIds(resIds: MutableList<Int?>): BannerView {
-        if (resIds.size < 1) throw RuntimeException("Minimum 1 pictures")
-        mIndicatorSize = resIds.size
-        resIds.add(0, resIds[resIds.size - 1])
-        resIds.add(resIds.size, resIds[1])
-        resIds.forEach { resId ->
-            resId?.let { mImages.add(it) }
-        }
-        mDataSize = mImages.size
-        return this
-    }
-
-    /**
-     * 添加网络图片
-     * @param urls 图片URL
-     */
-    fun setUrls(urls: MutableList<String?>): BannerView {
-        if (urls.size < 1) throw RuntimeException("Minimum 1 pictures")
-        mIndicatorSize = urls.size
-        urls.add(0, urls[urls.size - 1])
-        urls.add(urls.size, urls[1])
-        urls.forEach { url ->
-            url?.let { mImages.add(it) }
-        }
-        mDataSize = mImages.size
-        return this
-    }
-
-    /**
-     * 添加一个Item点击事件
-     */
-    fun setOnItemClickListener(listener: OnItemClickListener?): BannerView {
-        this.mOnItemClickListener = listener
-        return this
-    }
-
-    /**
      * 开始构建Banner
      */
     fun build() {
-        if (mBaseBannerAdapter == null) {
-            mImageViewAdapter = ImageViewAdapter(mContext, mImages, mPlaceholder, mError,
-                    mScaleType, mRequestOptions, mOnItemClickListener)
-        }
+        if (mBaseBannerAdapter == null) throw NullPointerException(
+                "${BannerView::class.qualifiedName}.setAdapter()")
 
         if (mViewPager?.orientation == HORIZONTAL) {
             mBottomIndicatorLayout?.visibility = View.VISIBLE
