@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -19,11 +18,8 @@ import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
 class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<String?>)
     : BaseBannerAdapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+    override fun onCreateVH(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)
-        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT)
-        imageView.layoutParams = layoutParams
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ImageViewHolder(imageView)
     }

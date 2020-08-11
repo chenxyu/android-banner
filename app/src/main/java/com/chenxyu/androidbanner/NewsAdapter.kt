@@ -16,7 +16,7 @@ import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
 class NewsAdapter(data: MutableList<String?>) :
         BaseBannerAdapter<NewsAdapter.TextViewHolder, String>(data) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewHolder {
+    override fun onCreateVH(parent: ViewGroup, viewType: Int): TextViewHolder {
         return TextViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_text_news, parent, false))
     }

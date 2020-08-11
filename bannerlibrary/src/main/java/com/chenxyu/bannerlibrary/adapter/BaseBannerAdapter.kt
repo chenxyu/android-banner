@@ -1,5 +1,7 @@
 package com.chenxyu.bannerlibrary.adapter
 
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.recyclerview.widget.RecyclerView
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
@@ -73,6 +75,27 @@ abstract class BaseBannerAdapter<VH : RecyclerView.ViewHolder, T>(
             else -> mData[position - 1]
         }
     }
+
+    /**
+     * 根布局强制MATCH_PARENT
+     */
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val bannerViewHolder = onCreateVH(parent, viewType)
+        bannerViewHolder.itemView.rootView.apply {
+            if (this.layoutParams == null || this.layoutParams.width != MATCH_PARENT ||
+                    this.layoutParams.height != MATCH_PARENT) {
+                val layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                this.layoutParams = layoutParams
+            }
+        }
+        return bannerViewHolder
+    }
+
+    /**
+     * @param parent 绑定到适配器位置后，新视图将被添加到其中的ViewGroup
+     * @param viewType 视图类型
+     */
+    abstract fun onCreateVH(parent: ViewGroup, viewType: Int): VH
 
     /**
      * ClickListener获取的都是真实position

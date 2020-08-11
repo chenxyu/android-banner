@@ -4,11 +4,6 @@
 为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPager2` ，自带4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
 使用AndroidX的 `Activity` 或 `Fragment` 都实现了 `LifecycleOwner` 接口，只需传入当前 `Lifecycle` 会根据当前生命周期管理 Banner开始和暂停。
 
-v2.3.0
-1.androidx.core:core-ktx:1.2.0 -> 1.3.0
-2.移除ImageViewAdapter，可按照下面提供的代码实现自定义ImageViewAdapter。
-3.增加setOffscreenPageLimit方法。
-
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
 # Gradle 依赖
@@ -28,7 +23,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.3.0'
+	implementation 'com.github.chenxyu:android-banner:2.3.1'
 }
 ```
 
@@ -90,9 +85,6 @@ class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<Stri
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)
-        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT)
-        imageView.layoutParams = layoutParams
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ImageViewHolder(imageView)
     }

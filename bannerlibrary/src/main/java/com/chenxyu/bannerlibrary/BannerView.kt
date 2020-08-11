@@ -47,7 +47,7 @@ class BannerView : RelativeLayout {
     private var mDelayMillis: Long = 5000
     private var isLoopViews: Boolean = true
     private var mBaseBannerAdapter: BaseBannerAdapter<*, *>? = null
-    private val mHandler: Handler = BannerHandler(this)
+    private var mHandler: Handler? = BannerHandler(this)
 
     companion object {
         const val HORIZONTAL = ViewPager2.ORIENTATION_HORIZONTAL
@@ -59,25 +59,34 @@ class BannerView : RelativeLayout {
 
         override fun handleMessage(msg: Message) {
             val bannerView = weakReference.get()
-            if (bannerView?.isTouch != null && !bannerView.isTouch) {
-                bannerView.mViewPager?.let {
-                    if (it.currentItem == it.childCount.minus(1)) {
-                        it.setCurrentItem(1, false)
-                    } else {
-                        it.beginFakeDrag()
-                        if (it.orientation == HORIZONTAL) {
-                            if (it.fakeDragBy(-it.width.toFloat() / 2)) {
-                                it.endFakeDrag()
-                            }
-                        } else {
-                            if (it.fakeDragBy(-it.height.toFloat() / 2)) {
-                                it.endFakeDrag()
+            when (msg.what) {
+                1 -> {
+                    if (bannerView?.isTouch != null && !bannerView.isTouch) {
+                        bannerView.mViewPager?.let {
+                            if (it.currentItem == it.childCount.minus(1)) {
+                                it.setCurrentItem(1, false)
+                            } else {
+                                it.beginFakeDrag()
+                                if (it.orientation == HORIZONTAL) {
+                                    if (it.fakeDragBy((-it.width.toFloat() * 0.6).toFloat())) {
+                                        it.endFakeDrag()
+                                    }
+                                } else {
+                                    if (it.fakeDragBy((-it.height.toFloat() * 0.6).toFloat())) {
+                                        it.endFakeDrag()
+                                    }
+                                }
                             }
                         }
                     }
+                    bannerView?.mDelayMillis?.let { sendEmptyMessageDelayed(1, it) }
+                }
+                2 -> {
+                    bannerView?.mLifecycleOwner?.lifecycle?.removeObserver(bannerView.mLifecycleEventObserver)
+                    removeMessages(0)
+                    bannerView?.mHandler = null
                 }
             }
-            bannerView?.mDelayMillis?.let { sendEmptyMessageDelayed(0, it) }
         }
     }
 
@@ -145,16 +154,13 @@ class BannerView : RelativeLayout {
         mViewPager?.let {
             it.offscreenPageLimit = mOffscreenPageLimit
             it.adapter = mBaseBannerAdapter
-            it.currentItem = 1
+            it.setCurrentItem(1, false)
             it.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     when (state) {
                         ViewPager2.SCROLL_STATE_IDLE -> {
-                            it.endFakeDrag()
                             isTouch = false
-                            mHandler.removeMessages(0)
-                            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
                             if (it.currentItem == 0) {
                                 it.setCurrentItem(mDataSize - 2, false)
                             }
@@ -166,10 +172,7 @@ class BannerView : RelativeLayout {
                             isTouch = true
                         }
                         ViewPager2.SCROLL_STATE_SETTLING -> {
-                            it.endFakeDrag()
                             isTouch = false
-                            mHandler.removeMessages(0)
-                            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
                         }
                     }
                 }
@@ -209,23 +212,38 @@ class BannerView : RelativeLayout {
                 }
             })
 
-            mLifecycleOwner?.lifecycle?.addObserver(LifecycleEventObserver { _, event ->
-                when (event) {
-                    Lifecycle.Event.ON_RESUME -> mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
-                    Lifecycle.Event.ON_PAUSE -> mHandler.removeMessages(0)
-                    Lifecycle.Event.ON_DESTROY -> {
-                        mHandler.removeMessages(0)
-                        mBaseBannerAdapter?.getData()?.clear()
-                        mDataSize = 0
-                        mIndicatorSize = 0
-                    }
-                    else -> {
-                    }
-                }
-            })
+            mLifecycleOwner?.lifecycle?.addObserver(mLifecycleEventObserver)
+        }
+    }
 
-            if (isLoopViews) {
-                mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+    private val mLifecycleEventObserver = LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> {
+                if (isLoopViews) {
+                    mHandler?.sendEmptyMessageDelayed(1, mDelayMillis)
+                }
+            }
+            Lifecycle.Event.ON_PAUSE -> mHandler?.removeMessages(0)
+            Lifecycle.Event.ON_DESTROY -> {
+                mContext = null
+                mRootLayout = null
+                mViewPager = null
+                mBottomIndicatorLayout = null
+                mEndIndicatorLayout = null
+                mIndicators = null
+                mIndicatorUnselected = null
+                mIndicatorSelected = null
+                mIndicatorWH = 0
+                mIndicatorMargin = 0
+                mDataSize = 0
+                mIndicatorSize = 0
+                mOffscreenPageLimit = 0
+                mLifecycleOwner = null
+                mDelayMillis = 0
+                mBaseBannerAdapter = null
+                mHandler?.sendEmptyMessage(2)
+            }
+            else -> {
             }
         }
     }
@@ -427,7 +445,7 @@ class BannerView : RelativeLayout {
      */
     fun start() {
         if (mDataSize > 0) {
-            mHandler.sendEmptyMessageDelayed(0, mDelayMillis)
+            mHandler?.sendEmptyMessageDelayed(1, mDelayMillis)
         }
     }
 
@@ -436,7 +454,7 @@ class BannerView : RelativeLayout {
      */
     fun pause() {
         if (mDataSize > 0) {
-            mHandler.removeMessages(0)
+            mHandler?.removeMessages(0)
         }
     }
 
