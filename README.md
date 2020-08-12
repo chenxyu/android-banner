@@ -83,7 +83,7 @@ dependencies {
 class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<String?>)
     : BaseBannerAdapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+    override fun onCreateVH(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ImageViewHolder(imageView)
@@ -117,7 +117,7 @@ class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<Stri
 class NewsAdapter(data: MutableList<String?>) :
         BaseBannerAdapter<NewsAdapter.TextViewHolder, String>(data) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewHolder {
+    override fun onCreateVH(parent: ViewGroup, viewType: Int): TextViewHolder {
         return TextViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_text_news, parent, false))
     }
