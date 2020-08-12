@@ -212,7 +212,12 @@ class BannerView : RelativeLayout {
                 }
             })
 
-            mLifecycleOwner?.lifecycle?.addObserver(mLifecycleEventObserver)
+            if (mLifecycleOwner != null) {
+                mLifecycleOwner?.lifecycle?.addObserver(mLifecycleEventObserver)
+            } else {
+                mHandler?.sendEmptyMessageDelayed(1, mDelayMillis)
+            }
+            
         }
     }
 
