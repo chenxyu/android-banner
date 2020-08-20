@@ -68,11 +68,11 @@ class BannerView : RelativeLayout {
                             } else {
                                 it.beginFakeDrag()
                                 if (it.orientation == HORIZONTAL) {
-                                    if (it.fakeDragBy((-it.width.toFloat() * 0.6).toFloat())) {
+                                    if (it.fakeDragBy((-it.width.toFloat() * 0.51).toFloat())) {
                                         it.endFakeDrag()
                                     }
                                 } else {
-                                    if (it.fakeDragBy((-it.height.toFloat() * 0.6).toFloat())) {
+                                    if (it.fakeDragBy((-it.height.toFloat() * 0.51).toFloat())) {
                                         it.endFakeDrag()
                                     }
                                 }
