@@ -121,8 +121,7 @@ class BannerView : RelativeLayout {
     }
 
     private fun init() {
-        val view = View.inflate(mContext, R.layout.banner_view, null)
-        addView(view)
+        val view = View.inflate(mContext, R.layout.banner_view, this)
         mRootLayout = view.findViewById(R.id.root_layout)
         mViewPager = view.findViewById(R.id.view_pager)
         mBottomIndicatorLayout = view.findViewById(R.id.bottom_indicator_layout)
