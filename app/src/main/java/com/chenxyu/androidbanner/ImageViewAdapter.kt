@@ -4,10 +4,10 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.RelativeLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
-import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
+import com.chenxyu.bannerlibrary.BannerView2
 
 /**
  * @Author:        ChenXingYu
@@ -16,22 +16,24 @@ import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
  * @Version:       1.0
  */
 class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<String?>)
-    : BaseBannerAdapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
+    : BannerView2.Adapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
 
     override fun onCreateVH(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)
+        val layoutParams = RelativeLayout.LayoutParams(350, 300)
+        imageView.layoutParams = layoutParams
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ImageViewHolder(imageView)
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int, item: String?) {
-        holder.initView(mContext, item)
+        holder.initView(item, position, mContext)
     }
 
-    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ImageViewHolder(itemView: View) : BannerView2.ViewHolder<String>(itemView) {
 
-        fun initView(mContext: Context?, item: String?) {
-            mContext?.let {
+        override fun initView(item: String?, position: Int?, context: Context?) {
+            context?.let {
                 Glide.with(it)
                         .load(item)
                         .placeholder(R.mipmap.ic_launcher)

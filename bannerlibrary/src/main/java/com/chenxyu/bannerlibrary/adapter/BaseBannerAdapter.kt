@@ -14,6 +14,10 @@ import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
  * @param VH ViewHolder
  * @param T 数据类型
  */
+@Deprecated(
+        "Please use BannerView2.Adapter instead.",
+        ReplaceWith("BannerView2", "com.chenxyu.bannerlibrary.BannerView2")
+)
 abstract class BaseBannerAdapter<VH : RecyclerView.ViewHolder, T>(
         private val mData: MutableList<T?>
 ) : RecyclerView.Adapter<VH>() {

@@ -25,9 +25,13 @@ import java.lang.ref.WeakReference
 /**
  * @Author:        ChenXingYu
  * @CreateDate:    2020/3/2 0:38
- * @Description:
+ * @Description:   BannerView
  * @Version:       1.0
  */
+@Deprecated(
+        "Please use BannerView2 instead.",
+        ReplaceWith("BannerView2", "com.chenxyu.bannerlibrary.BannerView2")
+)
 class BannerView : RelativeLayout {
     private var mContext: Context? = null
     private var mRootLayout: RelativeLayout? = null
@@ -216,7 +220,7 @@ class BannerView : RelativeLayout {
             } else {
                 mHandler?.sendEmptyMessageDelayed(1, mDelayMillis)
             }
-            
+
         }
     }
 

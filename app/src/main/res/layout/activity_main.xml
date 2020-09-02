@@ -6,12 +6,12 @@
     android:orientation="vertical"
     tools:context="com.chenxyu.androidbanner.MainActivity">
 
-    <com.chenxyu.bannerlibrary.BannerView
+    <com.chenxyu.bannerlibrary.BannerView2
         android:id="@+id/ad_banner_view"
         android:layout_width="match_parent"
         android:layout_height="200dp" />
 
-    <com.chenxyu.bannerlibrary.BannerView
+    <com.chenxyu.bannerlibrary.BannerView2
         android:id="@+id/news_banner_view"
         android:layout_width="match_parent"
         android:layout_height="50dp" />

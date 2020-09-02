@@ -1,11 +1,11 @@
 package com.chenxyu.androidbanner
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
+import com.chenxyu.bannerlibrary.BannerView2
 
 /**
  * @Author:        ChenXingYu
@@ -14,7 +14,7 @@ import com.chenxyu.bannerlibrary.adapter.BaseBannerAdapter
  * @Version:       1.0
  */
 class NewsAdapter(data: MutableList<String?>) :
-        BaseBannerAdapter<NewsAdapter.TextViewHolder, String>(data) {
+        BannerView2.Adapter<NewsAdapter.TextViewHolder, String>(data) {
 
     override fun onCreateVH(parent: ViewGroup, viewType: Int): TextViewHolder {
         return TextViewHolder(LayoutInflater.from(parent.context)
@@ -25,9 +25,9 @@ class NewsAdapter(data: MutableList<String?>) :
         holder.initView(item)
     }
 
-    class TextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TextViewHolder(itemView: View) : BannerView2.ViewHolder<String>(itemView) {
 
-        fun initView(item: String?) {
+        override fun initView(item: String?, position: Int?, context: Context?) {
             val tvNews = itemView.findViewById<TextView>(R.id.tv_news)
             item?.let { tvNews.text = it }
         }
