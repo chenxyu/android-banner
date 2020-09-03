@@ -57,7 +57,7 @@
             <!-- Completely hidden, as if the view had not been added. -->
             <enum name="gone" value="2" />
         </attr>
-        <attr name="loopViews" format="boolean" />
+        <attr name="autoPlay" format="boolean" />
         <attr name="offscreenPageLimit" format="integer" />
     </declare-styleable>
 </resources>

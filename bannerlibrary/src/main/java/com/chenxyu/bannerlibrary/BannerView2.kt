@@ -9,9 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
-import android.view.animation.Interpolator
 import android.widget.RelativeLayout
-import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -24,11 +22,14 @@ import com.chenxyu.bannerlibrary.extend.dpToPx
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
 import java.lang.ref.WeakReference
+import kotlin.math.ceil
 
 /**
  * @Author:        ChenXingYu
  * @CreateDate:    2020/8/12 15:08
- * @Description:   BannerView2（目前功能未完善不支持动画）
+ * @Description:   BannerView2基于RecyclerView（不支持动画）。
+ * isAutoPlay有值强制MATCH_PARENT，isAutoPlay值null时可以设置ItemView的Margin。
+ *
  * @Version:       1.0
  */
 class BannerView2 : RelativeLayout {
@@ -62,11 +63,6 @@ class BannerView2 : RelativeLayout {
      * 滑动持续时间
      */
     private var mDuration: Int? = null
-
-    /**
-     * 插值器
-     */
-    private var mInterpolator: Interpolator? = null
 
     /**
      * 是否触摸
@@ -127,7 +123,6 @@ class BannerView2 : RelativeLayout {
         isAutoPlay = null
         mDelayMillis = 0
         mDuration = null
-        mInterpolator = null
         isTouch = false
         mIndicator = null
         mLifecycleOwner?.lifecycle?.removeObserver(mLifecycleEventObserver)
@@ -138,15 +133,14 @@ class BannerView2 : RelativeLayout {
      * 创建Banner
      */
     fun build() {
-        if (mLayoutManager == null) throw RuntimeException("Please set up layoutManager")
-        if (mAdapter == null) throw RuntimeException("Please set up adapter")
+        if (mLayoutManager == null) throw NullPointerException("Please set up layoutManager")
+        if (mAdapter == null) throw NullPointerException("Please set up adapter")
         mAdapter?.getRealData()?.size?.let {
             if (isAutoPlay != null && it < 2) throw RuntimeException("No less than 2 pieces of data")
         }
 
         mHandler?.removeMessages(WHAT_NEXT_PAGE)
         mLayoutManager?.mDuration = mDuration
-        mLayoutManager?.mInterpolator = mInterpolator
         mRecyclerView?.apply {
             layoutManager = mLayoutManager
             mAdapter?.let { adapter = it }
@@ -276,15 +270,6 @@ class BannerView2 : RelativeLayout {
      */
     fun setDuration(duration: Int): BannerView2 {
         mDuration = duration
-        return this
-    }
-
-    /**
-     * 插值器
-     * @param interpolator 插值器
-     */
-    fun setInterpolator(interpolator: Interpolator): BannerView2 {
-        mInterpolator = interpolator
         return this
     }
 
@@ -537,78 +522,28 @@ class BannerView2 : RelativeLayout {
             var rightMargin: Int = 0, var bottomMargin: Int = 0
     )
 
-    private class LayoutManagerImpl : LinearLayoutManager {
+    private class LayoutManagerImpl(context: Context, orientation: Int, reverseLayout: Boolean = false) : LinearLayoutManager(
+            context,
+            orientation,
+            reverseLayout
+    ) {
         /**
          * 滑动持续时间
          */
         var mDuration: Int? = null
-
-        /**
-         * 插值器
-         */
-        var mInterpolator: Interpolator? = null
-
-        constructor(context: Context) : super(context)
-
-        constructor(context: Context, orientation: Int, reverseLayout: Boolean) : super(
-                context,
-                orientation,
-                reverseLayout
-        )
-
-        constructor(
-                context: Context,
-                attrs: AttributeSet,
-                defStyleAttr: Int,
-                defStyleRes: Int
-        ) : super(context, attrs, defStyleAttr, defStyleRes)
 
         override fun smoothScrollToPosition(
                 recyclerView: RecyclerView?,
                 state: RecyclerView.State?,
                 position: Int
         ) {
-            val linearSmoothScroller = LinearSmoothScroller(recyclerView!!.context)
-            linearSmoothScroller.targetPosition = position
-            if (mDuration == null || mInterpolator == null) {
-                val field =
-                        linearSmoothScroller::class.java.superclass!!.getDeclaredField("mRecyclingAction")
-                field.isAccessible = true
-                val mRecyclingAction =
-                        field.get(linearSmoothScroller) as RecyclerView.SmoothScroller.Action
-                val action = Action(0, 0)
-                action.mDuration = mDuration
-                action.mInterpolator = mInterpolator
-                field.set(linearSmoothScroller, action)
+            val linearSmoothScroller = object : LinearSmoothScroller(recyclerView!!.context) {
+                override fun calculateTimeForDeceleration(dx: Int): Int {
+                    return mDuration ?: ceil(calculateTimeForScrolling(dx) / .3356).toInt()
+                }
             }
+            linearSmoothScroller.targetPosition = position
             startSmoothScroll(linearSmoothScroller)
-        }
-    }
-
-    private class Action : RecyclerView.SmoothScroller.Action {
-        /**
-         * 滑动持续时间
-         */
-        var mDuration: Int? = null
-
-        /**
-         * 插值器
-         */
-        var mInterpolator: Interpolator? = null
-
-        constructor(@Px dx: Int, @Px dy: Int) : super(dx, dy)
-
-        constructor(@Px dx: Int, @Px dy: Int, duration: Int) : super(dx, dy, duration)
-
-        constructor(
-                @Px dx: Int,
-                @Px dy: Int,
-                duration: Int,
-                interpolator: Interpolator?
-        ) : super(dx, dy, duration, interpolator)
-
-        override fun update(dx: Int, dy: Int, duration: Int, interpolator: Interpolator?) {
-            super.update(dx, dy, mDuration ?: duration, mInterpolator ?: interpolator)
         }
     }
 }

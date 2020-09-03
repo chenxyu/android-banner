@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.chenxyu.bannerlibrary.BannerView
 import com.chenxyu.bannerlibrary.BannerView2
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 
@@ -26,7 +27,7 @@ class MainActivity : FragmentActivity() {
 
     private fun init() {
         // 自定义Adapter
-        val mADBannerView = findViewById<BannerView2>(R.id.ad_banner_view)
+        val mADBannerView = findViewById<BannerView>(R.id.ad_banner_view)
         val mImageUrls = mutableListOf<String?>()
         mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151718678&di=b0d073ad41f1e125aa7ee4abfcc9e2aa&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1920h1080%2F20180106%2F9692-fyqincu7584307.jpg")
         mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151462489&di=472f98f77c71a36dc90cde4ced4bb9e9&imgtype=0&src=http%3A%2F%2Fvsd-picture.cdn.bcebos.com%2F4649cd5d6dac13c4ae0901967f988fa691be04a9.jpg")
@@ -34,7 +35,6 @@ class MainActivity : FragmentActivity() {
         mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
         val mImageViewAdapter = ImageViewAdapter(this, mImageUrls)
         mADBannerView.setLifecycle(this)
-                .setLayoutManager(this, BannerView2.HORIZONTAL)
                 .setAdapter(mImageViewAdapter)
                 .setIndicator()
                 .setAutoPlay(true)

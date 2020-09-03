@@ -1,31 +1,67 @@
 package com.chenxyu.bannerlibrary
 
+import android.graphics.drawable.StateListDrawable
 import android.view.Gravity
-import android.widget.ImageView
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.chenxyu.bannerlibrary.extend.dpToPx
+import com.chenxyu.bannerlibrary.extend.getDrawable2
 
 /**
  * @Author:        ChenXingYu
  * @CreateDate:    2020/8/19 13:19
  * @Description:   自定义指示器需继承此类
  * @Version:       1.0
- * @param indicatorMargin 指示器边距（DP）
- * @param indicatorWidth 指示器宽（DP）
- * @param indicatorHeight 指示器高（DP）
- * @param indicatorLayoutWH 指示器布局的宽和高（DP）
  */
-abstract class Indicator(
-        var indicatorMargin: Int = 4, var indicatorWidth: Int = 8,
-        var indicatorHeight: Int = 8, var indicatorLayoutWH: Int = 20
-) {
+abstract class Indicator {
+    /**
+     * 指示器边距（DP）
+     */
+    var indicatorMargin: Int = 4
+
+    /**
+     * 指示器宽（DP）
+     */
+    var indicatorWidth: Int = 7
+
+    /**
+     * 指示器高（DP）
+     */
+    var indicatorHeight: Int = 7
+
+    /**
+     * 选中时指示器宽（DP）
+     */
+    var indicatorSelectedW: Int = 7
+
+    /**
+     * 选中时指示器高（DP）
+     */
+    var indicatorSelectedH: Int = 7
+
+    /**
+     * 指示器布局的宽和高（DP）
+     */
+    var indicatorLayoutWH: Int = 20
+
+    /**
+     * 指示器的位置
+     */
+    var indicatorGravity: Int = Gravity.CENTER
+
     /**
      * 指示器集
      */
-    private var mIndicators: MutableList<ImageView> = mutableListOf()
+    private var mIndicators: MutableList<View> = mutableListOf()
+
+    /**
+     * ViewPager2页面变化监听
+     */
+    private var mVp2PageChangeCallback: ViewPager2.OnPageChangeCallback? = null
 
     /**
      * RecyclerView滑动监听
@@ -33,16 +69,62 @@ abstract class Indicator(
     private var mRvScrollListener: RecyclerView.OnScrollListener? = null
 
     /**
+     * 默认指示器LayoutParams
+     */
+    private lateinit var normalParams: LinearLayout.LayoutParams
+
+    /**
+     * 选中的指示器LayoutParams
+     */
+    private lateinit var selectedParams: LinearLayout.LayoutParams
+
+    /**
      * 默认Indicator Drawable
      */
     @DrawableRes
-    abstract fun getNormalIndicatorDrawable(): Int
+    abstract fun getNormalDrawable(): Int
 
     /**
      * 选中Indicator Drawable
      */
     @DrawableRes
-    abstract fun getSelectedIndicatorDrawable(): Int
+    abstract fun getSelectedDrawable(): Int
+
+    /**
+     * 添加OnPageChangeCallback
+     */
+    fun registerOnPageChangeCallback(viewPager2: ViewPager2?) {
+        if (mVp2PageChangeCallback == null) {
+            mVp2PageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageScrollStateChanged(state: Int) {
+                    when (state) {
+                        // 闲置
+                        ViewPager2.SCROLL_STATE_IDLE -> {
+                            toggleIndicator(null, viewPager2)
+                        }
+                        // 拖拽中
+                        ViewPager2.SCROLL_STATE_DRAGGING -> {
+
+                        }
+                        // 惯性滑动中
+                        ViewPager2.SCROLL_STATE_SETTLING -> {
+
+                        }
+                    }
+                }
+            }
+            viewPager2?.registerOnPageChangeCallback(mVp2PageChangeCallback!!)
+        }
+    }
+
+    /**
+     * 删除OnPageChangeCallback
+     */
+    fun unregisterOnPageChangeCallback(viewPager2: ViewPager2?) {
+        mVp2PageChangeCallback?.let {
+            viewPager2?.unregisterOnPageChangeCallback(it)
+        }
+    }
 
     /**
      * 添加OnScrollListener
@@ -54,7 +136,7 @@ abstract class Indicator(
                     when (newState) {
                         // 闲置
                         RecyclerView.SCROLL_STATE_IDLE -> {
-                            toggleIndicator(recyclerView)
+                            toggleIndicator(recyclerView, null)
                         }
                         // 拖拽中
                         RecyclerView.SCROLL_STATE_DRAGGING -> {
@@ -72,7 +154,7 @@ abstract class Indicator(
     }
 
     /**
-     * 删除RecyclerView
+     * 删除OnScrollListener
      */
     fun removeRecyclerView(recyclerView: RecyclerView?) {
         mRvScrollListener?.let {
@@ -83,30 +165,36 @@ abstract class Indicator(
     /**
      * 切换指示器位置
      */
-    private fun toggleIndicator(recyclerView: RecyclerView?) {
-        val currentPosition = (recyclerView?.getChildAt(0)
+    private fun toggleIndicator(recyclerView: RecyclerView?, viewPager2: ViewPager2?) {
+        val currentPosition = viewPager2?.currentItem ?: (recyclerView?.getChildAt(0)
                 ?.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-        val adapter = recyclerView.adapter as BannerView2.Adapter<*, *>
+        val itemCount = viewPager2?.adapter?.itemCount
+                ?: (recyclerView?.adapter as BannerView2.Adapter<*, *>).itemCount
         for (indicator in mIndicators) {
-            indicator.setImageResource(getNormalIndicatorDrawable())
+            indicator.isSelected = false
+            indicator.layoutParams = normalParams
         }
         when (currentPosition) {
             0 -> {
-                mIndicators[mIndicators.size - 1].setImageResource(getSelectedIndicatorDrawable())
+                mIndicators[mIndicators.size - 1].isSelected = true
+                mIndicators[mIndicators.size - 1].layoutParams = selectedParams
                 return
             }
-            adapter.itemCount - 1 -> {
-                mIndicators[0].setImageResource(getSelectedIndicatorDrawable())
+            itemCount - 1 -> {
+                mIndicators[0].isSelected = true
+                mIndicators[0].layoutParams = selectedParams
                 return
             }
-            adapter.itemCount - 2 -> {
-                mIndicators[mIndicators.size - 1].setImageResource(getSelectedIndicatorDrawable())
+            itemCount - 2 -> {
+                mIndicators[mIndicators.size - 1].isSelected = true
+                mIndicators[mIndicators.size - 1].layoutParams = selectedParams
                 return
             }
         }
         for (i in mIndicators.indices) {
             if (currentPosition == i) {
-                mIndicators[i - 1].setImageResource(getSelectedIndicatorDrawable())
+                mIndicators[i - 1].isSelected = true
+                mIndicators[i - 1].layoutParams = selectedParams
                 return
             }
         }
@@ -122,29 +210,42 @@ abstract class Indicator(
         mIndicators.clear()
         val indicatorLayout = LinearLayout(relativeLayout.context).apply {
             this.orientation = orientation
-            this.gravity = Gravity.CENTER
+            this.gravity = indicatorGravity
         }
 
         repeat(count) {
-            val indicators = ImageView(relativeLayout.context)
-            indicators.setImageResource(getNormalIndicatorDrawable())
-            val layoutParams = RelativeLayout.LayoutParams(
+            val indicators = View(relativeLayout.context)
+            val drawable = StateListDrawable()
+            drawable.addState(IntArray(0).plus(android.R.attr.state_selected),
+                    relativeLayout.context.getDrawable2(getSelectedDrawable()))
+            drawable.addState(IntArray(0), relativeLayout.context.getDrawable2(getNormalDrawable()))
+            indicators.background = drawable
+            indicators.isSelected = false
+            normalParams = LinearLayout.LayoutParams(
                     indicatorWidth.dpToPx(relativeLayout.context),
                     indicatorHeight.dpToPx(relativeLayout.context))
+            selectedParams = LinearLayout.LayoutParams(
+                    indicatorSelectedW.dpToPx(relativeLayout.context),
+                    indicatorSelectedH.dpToPx(relativeLayout.context))
             if (orientation == BannerView2.HORIZONTAL) {
-                layoutParams.setMargins(indicatorMargin.dpToPx(relativeLayout.context), 0,
+                normalParams.setMargins(indicatorMargin.dpToPx(relativeLayout.context), 0,
                         indicatorMargin.dpToPx(relativeLayout.context), 0)
-                indicators.layoutParams = layoutParams
+                selectedParams.setMargins(indicatorMargin.dpToPx(relativeLayout.context), 0,
+                        indicatorMargin.dpToPx(relativeLayout.context), 0)
+                indicators.layoutParams = normalParams
                 indicatorLayout.addView(indicators)
             } else {
-                layoutParams.setMargins(0, indicatorMargin.dpToPx(relativeLayout.context),
+                normalParams.setMargins(0, indicatorMargin.dpToPx(relativeLayout.context),
                         0, indicatorMargin.dpToPx(relativeLayout.context))
-                indicators.layoutParams = layoutParams
+                selectedParams.setMargins(0, indicatorMargin.dpToPx(relativeLayout.context),
+                        0, indicatorMargin.dpToPx(relativeLayout.context))
+                indicators.layoutParams = normalParams
                 indicatorLayout.addView(indicators)
             }
             mIndicators.add(indicators)
         }
-        mIndicators[0].setImageResource(getSelectedIndicatorDrawable())
+        mIndicators[0].isSelected = true
+        mIndicators[0].layoutParams = selectedParams
 
         when (orientation) {
             BannerView2.HORIZONTAL -> {
