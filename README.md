@@ -4,6 +4,9 @@
 为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPager2` ，自带4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。
 使用AndroidX的 `Activity` 或 `Fragment` 都实现了 `LifecycleOwner` 接口，只需传入当前 `Lifecycle` 会根据当前生命周期管理 Banner开始和暂停。
 
+BannerView（基于ViewPager2）：支持动画。
+BannerView2（基于RecyclerView）：不支持动画，isAutoPlay值null时可以设置ItemView的Margin（不循环）。
+
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
 # Gradle 依赖
@@ -23,7 +26,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.3.3'
+	implementation 'com.github.chenxyu:android-banner:2.4.0'
 }
 ```
 
@@ -40,36 +43,50 @@ dependencies {
         android:layout_width="match_parent"
         android:layout_height="50dp" />
 
-        // 自定义Adapter
+        // BannerView
+        val mADBannerView = findViewById<BannerView>(R.id.ad_banner_view)
+        val mImageUrls = mutableListOf<String?>()
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151718678&di=b0d073ad41f1e125aa7ee4abfcc9e2aa&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1920h1080%2F20180106%2F9692-fyqincu7584307.jpg")
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151462489&di=472f98f77c71a36dc90cde4ced4bb9e9&imgtype=0&src=http%3A%2F%2Fvsd-picture.cdn.bcebos.com%2F4649cd5d6dac13c4ae0901967f988fa691be04a9.jpg")
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151590305&di=09f460cb77e3cee5caae3d638c637abc&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201312%2F27%2F20131227233022_Bd3Ft.jpeg")
+        mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
         val mImageViewAdapter = ImageViewAdapter(this, mImageUrls)
         mADBannerView.setLifecycle(this)
                 .setAdapter(mImageViewAdapter)
-                .setOrientation(BannerView.HORIZONTAL)
-                .setMultiPage(20)
-                .setScalePageTransformer()
+                .setIndicator()
+                .setAutoPlay(true)
+                .setDelayMillis(3000L)
+                .setDuration(500)
                 .build()
         mImageViewAdapter.onItemClickListener = object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 Toast.makeText(this@MainActivity, position.toString(),
                         Toast.LENGTH_SHORT).show()
             }
-
         }
 
-        // 自定义Adapter
+        // BannerView2
+        val mNewsBannerView = findViewById<BannerView2>(R.id.news_banner_view)
+        val mTitles = mutableListOf<String?>()
+        mTitles.add("世卫组织发言人：新冠疫情尚未到达顶峰")
+        mTitles.add("莫斯科将实施通行证制度")
+        mTitles.add("单日新增2972例 意大利累计确诊超16万")
+        mTitles.add("美或需保持社交隔离措施至2022年")
+        mTitles.add("新冠肺炎康复者能否抵御二次感染?世卫回应")
+        val mNewsAdapter = NewsAdapter(mTitles)
         mNewsBannerView.setLifecycle(this)
+                .setOrientation(BannerView2.VERTICAL)
                 .setAdapter(mNewsAdapter)
-                .setIndicatorVisibility(View.GONE)
-                .setOrientation(BannerView.VERTICAL)
+                .setAutoPlay(true)
+                .setDelayMillis(3000L)
+                .setDuration(500)
                 .build()
         mNewsAdapter.onItemClickListener = object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 Toast.makeText(this@MainActivity, position.toString(),
                         Toast.LENGTH_SHORT).show()
             }
-
         }
-    }
 ```
 `BaseBannerAdapter` 支持 `OnItemClickListener` 和 `OnItemLongClickListener`，通过ClickListener获取的 `position` 都是真实的。在自定义 `Adapter` 里使用 `getItemCount` 和 `getData` 获取数据，如果需要真实位置和数据需要使用 `getReal` 开头的方法获取，每个方法都有注释。
 
@@ -143,25 +160,19 @@ class NewsAdapter(data: MutableList<String?>) :
 | 方法名（返回this） | 说明 |
 |--|--|
 | setLifecycle | 观察Fragment或Activity生命周期控制Banner开始和暂停 |
-| setAdapter | 自定义Adapter（继承BaseBannerAdapter） |
-| isLoopViews | 是否循环 |
+| setAdapter | 自定义Adapter（继承BaseBannerAdapter），滑动方向 |
+| setAutoPlay | 自动循环轮播 |
 | setOffscreenPageLimit | 预加载页面限制 |
-| setIndicatorUnselected | 未选中指示器DrawableRes |
-| setIndicatorSelected | 选中指示器DrawableRes |
-| setIndicatorWH | 指示器宽高 |
-| setIndicatorMargin | 指示器Margin |
-| setDelayMillis | 页面切换时间 |
-| setIndicatorVisibility | 指示器显示或隐藏 |
-| setIndicatorGravity | 设置指示器位置 |
+| setDelayMillis | 页面切换延迟时间 |
+| setDuration | 滑动持续时间 |
 | setPageMargin | 设置页面间距 |
-| setOrientation | 滑动方向 |
-| setMultiPage | 一屏多页 ，在[setOrientation]之后设置 |
-| setScalePageTransformer | 缩放动画，在[setOrientation]之后设置 |
-| setZoomOutPageTransformer | 官方示例缩放动画，在[setOrientation]之后设置 |
-| setRotationPageTransformer | 官方示例旋转动画，在[setOrientation]之后设置 |
-| setDepthPageTransformer | 官方示例深度动画，在[setOrientation]之后设置 |
+| setMultiPage | 一屏多页 ，在[setAdapter]之后设置 |
+| setScalePageTransformer | 缩放动画，在[setAdapter]之后设置 |
+| setZoomOutPageTransformer | 官方示例缩放动画，在[setAdapter]之后设置 |
+| setRotationPageTransformer | 官方示例旋转动画，在[setAdapter]之后设置 |
+| setDepthPageTransformer | 官方示例深度动画，在[setAdapter]之后设置 |
 | setPageTransformer | 自定义动画 |
-| build | 开始构建Banner |
+| build | 创建Banner |
 
 | 方法名 | 说明 |
 |--|--|
@@ -171,12 +182,12 @@ class NewsAdapter(data: MutableList<String?>) :
 | XML属性 | 说明 |
 |--|--|
 | app:orientation | 滑动方向 |
-| app:indicatorUnselected | 未选中指示器DrawableRes |
+| app:indicatorNormal | 未选中指示器DrawableRes |
 | app:indicatorSelected | 选中指示器DrawableRes |
-| app:indicatorWH | 指示器宽高 |
 | app:indicatorMargin | 指示器Margin |
 | app:indicatorGravity | 设置指示器位置 |
-| app:indicatorVisibility | 指示器显示或隐藏 |
-| app:loopViews | 是否循环 |
+| app:autoPlay | 自动循环轮播 |
 | app:offscreenPageLimit | 预加载页面限制 |
+| app:delayMillis | 页面切换延迟时间 |
+| app:duration | 滑动持续时间 |
 

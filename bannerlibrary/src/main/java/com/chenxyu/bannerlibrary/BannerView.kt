@@ -7,12 +7,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -47,13 +48,32 @@ class BannerView : RelativeLayout {
     private var mViewPager2: ViewPager2? = null
     private var mAdapter: Adapter<*, *>? = null
 
-    private var mIndicators: MutableList<ImageView>? = null
-    private var mIndicatorUnselected: Int? = null
-    private var mIndicatorSelected: Int? = null
-    private var mIndicatorWH = 20
-    private var mIndicatorMargin = 8
+    /**
+     *当前页面数据长度
+     */
     private var mDataSize: Int = 0
-    private var mIndicatorSize: Int = 0
+
+    /**
+     * 指示器外边距
+     */
+    private var mIndicatorMargin: Int? = null
+
+    /**
+     * 指示器位置
+     */
+    private var mIndicatorGravity: Int? = null
+
+    /**
+     * 默认Indicator
+     */
+    @DrawableRes
+    private var mIndicatorNormal: Int? = null
+
+    /**
+     * 选中Indicator
+     */
+    @DrawableRes
+    private var mIndicatorSelected: Int? = null
 
     /**
      * 预加载页面限制（默认2）
@@ -117,32 +137,29 @@ class BannerView : RelativeLayout {
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        mViewPager2 = ViewPager2(context)
-
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView)
         attributes.let {
             mViewPager2?.orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
-            it.getResourceId(R.styleable.BannerView_indicatorUnselected, -1).takeIf { resource ->
+            it.getResourceId(R.styleable.BannerView_indicatorNormal, -1).takeIf { resource ->
                 resource != -1
-            }?.apply { mIndicatorUnselected = this }
+            }?.apply { mIndicatorNormal = this }
             it.getResourceId(R.styleable.BannerView_indicatorSelected, -1).takeIf { resource ->
                 resource != -1
             }?.apply { mIndicatorSelected = this }
-            it.getDimension(R.styleable.BannerView_indicatorWH, 0f).takeIf { dimension ->
-                dimension > 0f
-            }?.apply { mIndicatorWH = this.toInt() }
             it.getDimension(R.styleable.BannerView_indicatorMargin, 0f).takeIf { dimension ->
                 dimension > 0f
             }?.apply { mIndicatorMargin = this.toInt() }
-//            gravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
-//            gravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
-//            visibility = it.getInteger(R.styleable.BannerView_indicatorVisibility, View.VISIBLE)
-//            visibility = it.getInteger(R.styleable.BannerView_indicatorVisibility, View.VISIBLE)
+            mIndicatorGravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
             isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
             mOffscreenPageLimit = it.getInteger(R.styleable.BannerView_offscreenPageLimit, mOffscreenPageLimit)
+            mDelayMillis = it.getInteger(R.styleable.BannerView_delayMillis, 5000).toLong()
+            it.getInteger(R.styleable.BannerView_duration, 0).takeIf { integer ->
+                integer != 0
+            }?.apply { mDuration = this }
         }
         attributes.recycle()
 
+        mViewPager2 = ViewPager2(context)
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -158,13 +175,10 @@ class BannerView : RelativeLayout {
         mHandler = null
         mAdapter = null
         mViewPager2 = null
-        mIndicators = null
-        mIndicatorUnselected = null
+        mIndicatorNormal = null
         mIndicatorSelected = null
-        mIndicatorWH = 0
         mIndicatorMargin = 0
         mDataSize = 0
-        mIndicatorSize = 0
         mOffscreenPageLimit = 0
         mLifecycleOwner = null
         mDelayMillis = 0
@@ -184,6 +198,7 @@ class BannerView : RelativeLayout {
             if (it < 2) throw RuntimeException("No less than 2 pieces of data")
         }
 
+        // 替换LayoutManager
         replaceLayoutManager()
         mViewPager2?.let {
             it.offscreenPageLimit = mOffscreenPageLimit
@@ -212,7 +227,12 @@ class BannerView : RelativeLayout {
             })
 
             // 设置指示器
-            if (mIndicator != null) {
+            if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
+                    mIndicatorMargin != null || mIndicatorGravity != null) {
+                if (mIndicator == null) {
+                    mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                            mIndicatorMargin, mIndicatorGravity)
+                }
                 mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(), mViewPager2!!.orientation)
                 mIndicator!!.registerOnPageChangeCallback(mViewPager2)
             } else {
@@ -246,7 +266,6 @@ class BannerView : RelativeLayout {
      */
     fun setAdapter(adapter: Adapter<*, *>, orientation: Int = HORIZONTAL): BannerView {
         mAdapter = adapter.apply {
-            mIndicatorSize = getRealItemCount()
             mDataSize = itemCount
         }
         mViewPager2?.orientation = orientation

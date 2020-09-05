@@ -6,11 +6,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -27,9 +29,7 @@ import java.lang.ref.WeakReference
 /**
  * @Author:        ChenXingYu
  * @CreateDate:    2020/8/12 15:08
- * @Description:   BannerView2基于RecyclerView（不支持动画）。
- * isAutoPlay有值强制MATCH_PARENT，isAutoPlay值null时可以设置ItemView的Margin。
- *
+ * @Description:   BannerView2基于RecyclerView（不支持动画），isAutoPlay值null时可以设置ItemView的Margin（不循环）。
  * @Version:       1.0
  */
 class BannerView2 : RelativeLayout {
@@ -75,6 +75,28 @@ class BannerView2 : RelativeLayout {
     private var mIndicator: Indicator? = null
 
     /**
+     * 指示器外边距
+     */
+    private var mIndicatorMargin: Int? = null
+
+    /**
+     * 指示器位置
+     */
+    private var mIndicatorGravity: Int? = null
+
+    /**
+     * 默认Indicator
+     */
+    @DrawableRes
+    private var mIndicatorNormal: Int? = null
+
+    /**
+     * 选中Indicator
+     */
+    @DrawableRes
+    private var mIndicatorSelected: Int? = null
+
+    /**
      * Handler控制轮播
      */
     private var mHandler: BannerHandler? = BannerHandler(this)
@@ -101,7 +123,29 @@ class BannerView2 : RelativeLayout {
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        mLayoutManager = LayoutManagerImpl(context, HORIZONTAL, false)
+        val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView2)
+        var orientation = HORIZONTAL
+        attributes.let {
+            orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
+            it.getResourceId(R.styleable.BannerView_indicatorNormal, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mIndicatorNormal = this }
+            it.getResourceId(R.styleable.BannerView_indicatorSelected, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mIndicatorSelected = this }
+            it.getDimension(R.styleable.BannerView_indicatorMargin, 0f).takeIf { dimension ->
+                dimension > 0f
+            }?.apply { mIndicatorMargin = this.toInt() }
+            mIndicatorGravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
+            isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
+            mDelayMillis = it.getInteger(R.styleable.BannerView_delayMillis, 5000).toLong()
+            it.getInteger(R.styleable.BannerView_duration, 0).takeIf { integer ->
+                integer != 0
+            }?.apply { mDuration = this }
+        }
+        attributes.recycle()
+
+        mLayoutManager = LayoutManagerImpl(context, orientation, false)
         mRecyclerView = RecyclerView(context)
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -172,7 +216,12 @@ class BannerView2 : RelativeLayout {
 
         if (isAutoPlay != null) {
             // 设置指示器
-            if (mIndicator != null) {
+            if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
+                    mIndicatorMargin != null || mIndicatorGravity != null) {
+                if (mIndicator == null) {
+                    mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                            mIndicatorMargin, mIndicatorGravity)
+                }
                 mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(), mLayoutManager!!.orientation)
                 mIndicator!!.addOnScrollListener(mRecyclerView)
             } else {
@@ -514,7 +563,7 @@ class BannerView2 : RelativeLayout {
     }
 
     /**
-     * 边距（DP）
+     * 外边距（DP）
      */
     data class Margins(
             var leftMargin: Int = 0, var topMargin: Int = 0,

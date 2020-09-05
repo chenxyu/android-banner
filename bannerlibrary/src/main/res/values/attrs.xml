@@ -44,20 +44,29 @@
             <!-- Defines a vertical widget. -->
             <enum name="vertical" value="1" />
         </attr>
-        <attr name="indicatorUnselected" format="reference" />
+        <attr name="indicatorNormal" format="reference" />
         <attr name="indicatorSelected" format="reference" />
-        <attr name="indicatorWH" format="dimension" />
         <attr name="indicatorMargin" format="dimension" />
         <attr name="indicatorGravity" />
-        <attr name="indicatorVisibility">
-            <!-- Visible on screen; the default value. -->
-            <enum name="visible" value="0" />
-            <!-- Not displayed, but taken into account during layout (space is left for it). -->
-            <enum name="invisible" value="1" />
-            <!-- Completely hidden, as if the view had not been added. -->
-            <enum name="gone" value="2" />
-        </attr>
         <attr name="autoPlay" format="boolean" />
         <attr name="offscreenPageLimit" format="integer" />
+        <attr name="delayMillis" format="integer" />
+        <attr name="duration" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="BannerView2">
+        <attr name="orientation">
+            <!-- Defines an horizontal widget. -->
+            <enum name="horizontal" value="0" />
+            <!-- Defines a vertical widget. -->
+            <enum name="vertical" value="1" />
+        </attr>
+        <attr name="indicatorNormal" format="reference" />
+        <attr name="indicatorSelected" format="reference" />
+        <attr name="indicatorMargin" format="dimension" />
+        <attr name="indicatorGravity" />
+        <attr name="autoPlay" format="boolean" />
+        <attr name="delayMillis" format="integer" />
+        <attr name="duration" format="integer" />
     </declare-styleable>
 </resources>

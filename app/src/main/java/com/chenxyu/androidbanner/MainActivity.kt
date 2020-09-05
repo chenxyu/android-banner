@@ -26,7 +26,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun init() {
-        // 自定义Adapter
+        // BannerView
         val mADBannerView = findViewById<BannerView>(R.id.ad_banner_view)
         val mImageUrls = mutableListOf<String?>()
         mImageUrls.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151718678&di=b0d073ad41f1e125aa7ee4abfcc9e2aa&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1920h1080%2F20180106%2F9692-fyqincu7584307.jpg")
@@ -46,10 +46,9 @@ class MainActivity : FragmentActivity() {
                 Toast.makeText(this@MainActivity, position.toString(),
                         Toast.LENGTH_SHORT).show()
             }
-
         }
 
-        // 自定义Adapter
+        // BannerView2
         val mNewsBannerView = findViewById<BannerView2>(R.id.news_banner_view)
         val mTitles = mutableListOf<String?>()
         mTitles.add("世卫组织发言人：新冠疫情尚未到达顶峰")
@@ -70,7 +69,6 @@ class MainActivity : FragmentActivity() {
                 Toast.makeText(this@MainActivity, position.toString(),
                         Toast.LENGTH_SHORT).show()
             }
-
         }
     }
 

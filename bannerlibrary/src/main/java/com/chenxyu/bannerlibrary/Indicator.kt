@@ -19,7 +19,7 @@ import com.chenxyu.bannerlibrary.extend.getDrawable2
  */
 abstract class Indicator {
     /**
-     * 指示器边距（DP）
+     * 指示器外边距（DP）
      */
     var indicatorMargin: Int = 4
 
@@ -54,6 +54,18 @@ abstract class Indicator {
     var indicatorGravity: Int = Gravity.CENTER
 
     /**
+     * 默认Indicator Drawable
+     */
+    @DrawableRes
+    var indicatorNormalDrawable: Int = R.drawable.indicator_gray
+
+    /**
+     * 选中Indicator Drawable
+     */
+    @DrawableRes
+    var indicatorSelectedDrawable: Int = R.drawable.indicator_white
+
+    /**
      * 指示器集
      */
     private var mIndicators: MutableList<View> = mutableListOf()
@@ -77,18 +89,6 @@ abstract class Indicator {
      * 选中的指示器LayoutParams
      */
     private lateinit var selectedParams: LinearLayout.LayoutParams
-
-    /**
-     * 默认Indicator Drawable
-     */
-    @DrawableRes
-    abstract fun getNormalDrawable(): Int
-
-    /**
-     * 选中Indicator Drawable
-     */
-    @DrawableRes
-    abstract fun getSelectedDrawable(): Int
 
     /**
      * 添加OnPageChangeCallback
@@ -218,8 +218,8 @@ abstract class Indicator {
             val indicators = View(relativeLayout.context)
             val drawable = StateListDrawable()
             drawable.addState(IntArray(0).plus(android.R.attr.state_selected),
-                    relativeLayout.context.getDrawable2(getSelectedDrawable()))
-            drawable.addState(IntArray(0), relativeLayout.context.getDrawable2(getNormalDrawable()))
+                    relativeLayout.context.getDrawable2(indicatorSelectedDrawable))
+            drawable.addState(IntArray(0), relativeLayout.context.getDrawable2(indicatorNormalDrawable))
             indicators.background = drawable
             indicators.isSelected = false
             normalParams = LinearLayout.LayoutParams(
