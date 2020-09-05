@@ -44,26 +44,33 @@
         <enum name="vertical" value="1" />
     </attr>
 
+    <attr name="indicatorNormal" format="reference" />
+    <attr name="indicatorSelected" format="reference" />
+    <attr name="indicatorMargin" format="dimension" />
+    <attr name="autoPlay" format="boolean" />
+    <attr name="delayMillis" format="integer" />
+    <attr name="duration" format="integer" />
+
     <declare-styleable name="BannerView">
         <attr name="orientation" />
-        <attr name="indicatorNormal" format="reference" />
-        <attr name="indicatorSelected" format="reference" />
-        <attr name="indicatorMargin" format="dimension" />
         <attr name="indicatorGravity" />
-        <attr name="autoPlay" format="boolean" />
+        <attr name="indicatorNormal" />
+        <attr name="indicatorSelected" />
+        <attr name="indicatorMargin" />
+        <attr name="autoPlay" />
+        <attr name="delayMillis" />
+        <attr name="duration" />
         <attr name="offscreenPageLimit" format="integer" />
-        <attr name="delayMillis" format="integer" />
-        <attr name="duration" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="BannerView2">
         <attr name="orientation" />
-        <attr name="indicatorNormal" format="reference" />
-        <attr name="indicatorSelected" format="reference" />
-        <attr name="indicatorMargin" format="dimension" />
         <attr name="indicatorGravity" />
-        <attr name="autoPlay" format="boolean" />
-        <attr name="delayMillis" format="integer" />
-        <attr name="duration" format="integer" />
+        <attr name="indicatorNormal" />
+        <attr name="indicatorSelected" />
+        <attr name="indicatorMargin" />
+        <attr name="autoPlay" />
+        <attr name="delayMillis" />
+        <attr name="duration" />
     </declare-styleable>
 </resources>
