@@ -91,29 +91,25 @@ dependencies {
 `BaseBannerAdapter` 支持 `OnItemClickListener` 和 `OnItemLongClickListener`，通过ClickListener获取的 `position` 都是真实的。在自定义 `Adapter` 里使用 `getItemCount` 和 `getData` 获取数据，如果需要真实位置和数据需要使用 `getReal` 开头的方法获取，每个方法都有注释。
 
 ```kotlin
-/**
- * @Author:        ChenXingYu
- * @CreateDate:    2020/6/19 18:12
- * @Description:
- * @Version:       1.0
- */
 class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<String?>)
-    : BaseBannerAdapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
+    : BannerView.Adapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
 
     override fun onCreateVH(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)
+        val layoutParams = RelativeLayout.LayoutParams(350, 300)
+        imageView.layoutParams = layoutParams
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ImageViewHolder(imageView)
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int, item: String?) {
-        holder.initView(mContext, item)
+        holder.initView(item, position, mContext)
     }
 
-    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ImageViewHolder(itemView: View) : BannerView2.ViewHolder<String>(itemView) {
 
-        fun initView(mContext: Context?, item: String?) {
-            mContext?.let {
+        override fun initView(item: String?, position: Int?, context: Context?) {
+            context?.let {
                 Glide.with(it)
                         .load(item)
                         .placeholder(R.mipmap.ic_launcher)
@@ -125,14 +121,8 @@ class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<Stri
     }
 }
 
-/**
- * @Author:        ChenXingYu
- * @CreateDate:    2020/4/15 9:46
- * @Description:
- * @Version:       1.0
- */
 class NewsAdapter(data: MutableList<String?>) :
-        BaseBannerAdapter<NewsAdapter.TextViewHolder, String>(data) {
+        BannerView2.Adapter<NewsAdapter.TextViewHolder, String>(data) {
 
     override fun onCreateVH(parent: ViewGroup, viewType: Int): TextViewHolder {
         return TextViewHolder(LayoutInflater.from(parent.context)
@@ -143,9 +133,9 @@ class NewsAdapter(data: MutableList<String?>) :
         holder.initView(item)
     }
 
-    class TextViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TextViewHolder(itemView: View) : BannerView2.ViewHolder<String>(itemView) {
 
-        fun initView(item: String?) {
+        override fun initView(item: String?, position: Int?, context: Context?) {
             val tvNews = itemView.findViewById<TextView>(R.id.tv_news)
             item?.let { tvNews.text = it }
         }
