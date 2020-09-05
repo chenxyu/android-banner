@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
@@ -22,7 +23,6 @@ import com.chenxyu.bannerlibrary.extend.dpToPx
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
 import java.lang.ref.WeakReference
-import kotlin.math.ceil
 
 /**
  * @Author:        ChenXingYu
@@ -98,12 +98,16 @@ class BannerView2 : RelativeLayout {
         }
     }
 
-    constructor(context: Context?) : super(context)
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-        View.inflate(context, R.layout.banner_view_2, this)
-
-        mRecyclerView = findViewById(R.id.recycler_view)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        mLayoutManager = LayoutManagerImpl(context, HORIZONTAL, false)
+        mRecyclerView = RecyclerView(context)
+        val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        )
+        addView(mRecyclerView, 0, layoutParams)
     }
 
     /**
@@ -204,19 +208,14 @@ class BannerView2 : RelativeLayout {
     }
 
     /**
-     * 设置LayoutManager
-     * @param context 上下文
-     * @param orientation 布局方向[BannerView2.HORIZONTAL] [BannerView2.VERTICAL]
+     * 设置方向
+     * @param orientation 布局方向默认[BannerView2.HORIZONTAL] [BannerView2.VERTICAL]
      * @param reverseLayout 是否应该从头到尾计算布局
      */
-    fun setLayoutManager(context: Context, orientation: Int, reverseLayout: Boolean = false): BannerView2 {
-        if (mLayoutManager == null) {
-            mLayoutManager = LayoutManagerImpl(context, orientation, reverseLayout)
-        } else {
-            mLayoutManager?.apply {
-                this.orientation = orientation
-                this.reverseLayout = reverseLayout
-            }
+    fun setOrientation(orientation: Int, reverseLayout: Boolean = false): BannerView2 {
+        mLayoutManager?.apply {
+            this.orientation = orientation
+            this.reverseLayout = reverseLayout
         }
         return this
     }
@@ -539,7 +538,7 @@ class BannerView2 : RelativeLayout {
         ) {
             val linearSmoothScroller = object : LinearSmoothScroller(recyclerView!!.context) {
                 override fun calculateTimeForDeceleration(dx: Int): Int {
-                    return mDuration ?: ceil(calculateTimeForScrolling(dx) / .3356).toInt()
+                    return mDuration ?: super.calculateTimeForDeceleration(dx)
                 }
             }
             linearSmoothScroller.targetPosition = position

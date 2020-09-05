@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
@@ -29,7 +30,6 @@ import com.chenxyu.bannerlibrary.transformer.RotationPageTransformer
 import com.chenxyu.bannerlibrary.transformer.ScalePageTransformer
 import com.chenxyu.bannerlibrary.transformer.ZoomOutPageTransformer
 import java.lang.ref.WeakReference
-import kotlin.math.ceil
 
 /**
  * @Author:        ChenXingYu
@@ -114,15 +114,13 @@ class BannerView : RelativeLayout {
         }
     }
 
-    constructor(context: Context?) : super(context)
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-        View.inflate(context, R.layout.banner_view, this)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        mViewPager2 = ViewPager2(context)
 
-        mViewPager2 = findViewById(R.id.view_pager)
-
-        val attributes = context?.obtainStyledAttributes(attrs, R.styleable.BannerView)
-        attributes?.let {
+        val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView)
+        attributes.let {
             mViewPager2?.orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
             it.getResourceId(R.styleable.BannerView_indicatorUnselected, -1).takeIf { resource ->
                 resource != -1
@@ -143,7 +141,13 @@ class BannerView : RelativeLayout {
             isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
             mOffscreenPageLimit = it.getInteger(R.styleable.BannerView_offscreenPageLimit, mOffscreenPageLimit)
         }
-        attributes?.recycle()
+        attributes.recycle()
+
+        val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        )
+        addView(mViewPager2, 0, layoutParams)
     }
 
     /**
@@ -580,7 +584,7 @@ class BannerView : RelativeLayout {
         ) {
             val linearSmoothScroller = object : LinearSmoothScroller(recyclerView!!.context) {
                 override fun calculateTimeForDeceleration(dx: Int): Int {
-                    return mDuration ?: ceil(calculateTimeForScrolling(dx) / .3356).toInt()
+                    return mDuration ?: super.calculateTimeForDeceleration(dx)
                 }
             }
             linearSmoothScroller.targetPosition = position

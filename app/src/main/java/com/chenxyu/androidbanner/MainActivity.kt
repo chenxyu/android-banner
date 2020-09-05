@@ -59,7 +59,7 @@ class MainActivity : FragmentActivity() {
         mTitles.add("新冠肺炎康复者能否抵御二次感染?世卫回应")
         val mNewsAdapter = NewsAdapter(mTitles)
         mNewsBannerView.setLifecycle(this)
-                .setLayoutManager(this, BannerView2.VERTICAL)
+                .setOrientation(BannerView2.VERTICAL)
                 .setAdapter(mNewsAdapter)
                 .setAutoPlay(true)
                 .setDelayMillis(3000L)

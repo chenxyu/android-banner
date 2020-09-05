@@ -108,7 +108,7 @@ abstract class Indicator {
                         }
                         // 惯性滑动中
                         ViewPager2.SCROLL_STATE_SETTLING -> {
-
+                            toggleIndicator(null, viewPager2)
                         }
                     }
                 }
@@ -144,7 +144,7 @@ abstract class Indicator {
                         }
                         // 惯性滑动中
                         RecyclerView.SCROLL_STATE_SETTLING -> {
-
+                            toggleIndicator(recyclerView, null)
                         }
                     }
                 }
@@ -165,6 +165,7 @@ abstract class Indicator {
     /**
      * 切换指示器位置
      */
+    @Synchronized
     private fun toggleIndicator(recyclerView: RecyclerView?, viewPager2: ViewPager2?) {
         val currentPosition = viewPager2?.currentItem ?: (recyclerView?.getChildAt(0)
                 ?.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
