@@ -199,7 +199,7 @@ class BannerView : RelativeLayout {
         }
 
         // 替换LayoutManager
-        replaceLayoutManager()
+        mDuration?.let { replaceLayoutManager() }
         mViewPager2?.let {
             it.offscreenPageLimit = mOffscreenPageLimit
             it.adapter = mAdapter
