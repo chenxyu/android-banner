@@ -51,7 +51,7 @@ class BannerView : RelativeLayout {
     /**
      *当前页面数据长度
      */
-    private var mDataSize: Int = 0
+    private var mDataSize: Int = -1
 
     /**
      * 指示器外边距
@@ -178,7 +178,7 @@ class BannerView : RelativeLayout {
         mIndicatorNormal = null
         mIndicatorSelected = null
         mIndicatorMargin = 0
-        mDataSize = 0
+        mDataSize = -1
         mOffscreenPageLimit = 0
         mLifecycleOwner = null
         mDelayMillis = 0
@@ -424,6 +424,7 @@ class BannerView : RelativeLayout {
             val layoutManagerImpl = LayoutManagerImpl(context, it.orientation)
             layoutManagerImpl.mDuration = mDuration
             layoutManagerImpl.mOffscreenPageLimit = mOffscreenPageLimit
+            layoutManagerImpl.mDataSize = mDataSize
             val mRecyclerView = it.getChildAt(0) as RecyclerView
             mRecyclerView.layoutManager = layoutManagerImpl
             val mLayoutManager = it::class.java.getDeclaredField("mLayoutManager")
@@ -596,6 +597,11 @@ class BannerView : RelativeLayout {
          */
         var mOffscreenPageLimit = 2
 
+        /**
+         *当前页面数据长度
+         */
+        var mDataSize: Int = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
+
         override fun smoothScrollToPosition(
                 recyclerView: RecyclerView?,
                 state: RecyclerView.State?,
@@ -618,9 +624,9 @@ class BannerView : RelativeLayout {
                 super.calculateExtraLayoutSpace(state, extraLayoutSpace)
                 return
             }
-//            val offscreenSpace: Int = getPageSize() * pageLimit
-//            extraLayoutSpace[0] = offscreenSpace
-//            extraLayoutSpace[1] = offscreenSpace
+            val offscreenSpace: Int = mDataSize * pageLimit
+            extraLayoutSpace[0] = offscreenSpace
+            extraLayoutSpace[1] = offscreenSpace
         }
 
         override fun requestChildRectangleOnScreen(parent: RecyclerView,
