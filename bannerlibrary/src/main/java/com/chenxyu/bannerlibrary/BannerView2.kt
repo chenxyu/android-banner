@@ -194,6 +194,7 @@ class BannerView2 : RelativeLayout {
             mAdapter?.let { adapter = it }
         }
 
+        mRecyclerView?.clearOnScrollListeners()
         mRecyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
@@ -225,7 +226,7 @@ class BannerView2 : RelativeLayout {
                 mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(), mLayoutManager!!.orientation)
                 mIndicator!!.addOnScrollListener(mRecyclerView)
             } else {
-                mIndicator?.removeRecyclerView(mRecyclerView)
+                mIndicator?.removeScrollListener(mRecyclerView)
                 mIndicator = null
             }
             // 默认设置第一页
@@ -239,7 +240,7 @@ class BannerView2 : RelativeLayout {
             mHandler?.removeMessages(WHAT_NEXT_PAGE)
             mPagerSnapHelper?.attachToRecyclerView(null)
             mPagerSnapHelper = null
-            mIndicator?.removeRecyclerView(mRecyclerView)
+            mIndicator?.removeScrollListener(mRecyclerView)
             mIndicator = null
         }
     }

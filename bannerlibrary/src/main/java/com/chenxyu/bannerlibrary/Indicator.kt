@@ -156,7 +156,7 @@ abstract class Indicator {
     /**
      * 删除OnScrollListener
      */
-    fun removeRecyclerView(recyclerView: RecyclerView?) {
+    fun removeScrollListener(recyclerView: RecyclerView?) {
         mRvScrollListener?.let {
             recyclerView?.removeOnScrollListener(it)
         }

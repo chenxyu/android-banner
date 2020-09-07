@@ -27,7 +27,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.4.3'
+	implementation 'com.github.chenxyu:android-banner:2.4.4'
 }
 ```
 
@@ -156,6 +156,7 @@ class NewsAdapter(data: MutableList<String?>) :
 | setOffscreenPageLimit | 预加载页面限制 |
 | setDelayMillis | 页面切换延迟时间 |
 | setDuration | 滑动持续时间 |
+| setRoundRect | Banner圆角 |
 | setPageMargin | 设置页面间距 |
 | setMultiPage | 一屏多页 ，在[setAdapter]之后设置 |
 | setScalePageTransformer | 缩放动画，在[setAdapter]之后设置 |
