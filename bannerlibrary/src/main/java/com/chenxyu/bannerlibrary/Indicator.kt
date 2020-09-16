@@ -208,6 +208,7 @@ abstract class Indicator {
      * @param orientation 方向
      */
     fun setIndicator(relativeLayout: RelativeLayout, count: Int, orientation: Int) {
+        if (relativeLayout.childCount == 2) relativeLayout.removeViewAt(1)
         mIndicators.clear()
         val indicatorLayout = LinearLayout(relativeLayout.context).apply {
             this.orientation = orientation
