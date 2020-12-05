@@ -5,6 +5,7 @@ import android.graphics.Outline
 import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
 import android.view.Gravity
@@ -54,6 +55,16 @@ class BannerView : RelativeLayout {
     private var mDataSize: Int = -1
 
     /**
+     * 指示器
+     */
+    private var mIndicator: Indicator? = null
+
+    /**
+     * 指示器是否循环
+     */
+    private var isLoopForIndicator: Boolean = true
+
+    /**
      * 指示器外边距
      */
     private var mIndicatorMargin: Int? = null
@@ -101,14 +112,9 @@ class BannerView : RelativeLayout {
     private var mDuration: Int? = null
 
     /**
-     * 自动循环轮播（true：自动循环轮播 false：不自动循环轮播）
+     * 自动循环轮播（true：默认自动-循环轮播 false：不自动-循环轮播 null：不循环）
      */
-    private var isAutoPlay: Boolean = true
-
-    /**
-     * 指示器
-     */
-    private var mIndicator: Indicator? = null
+    private var isAutoPlay: Boolean? = true
 
     /**
      * Handler控制轮播
@@ -121,7 +127,7 @@ class BannerView : RelativeLayout {
     private val mLifecycleEventObserver = LifecycleEventObserver { _, event ->
         when (event) {
             Lifecycle.Event.ON_RESUME -> {
-                if (isAutoPlay) {
+                if (isAutoPlay != null && isAutoPlay == true) {
                     mHandler?.sendEmptyMessageDelayed(WHAT_NEXT_PAGE, mDelayMillis)
                 }
             }
@@ -195,7 +201,7 @@ class BannerView : RelativeLayout {
     fun build() {
         if (mAdapter == null) throw NullPointerException("Please set up adapter")
         mAdapter?.getRealData()?.size?.let {
-            if (it < 2) throw RuntimeException("No less than 2 pieces of data")
+            if (it < 1) throw RuntimeException("No less than 1 pieces of data")
         }
 
         // 替换LayoutManager
@@ -233,7 +239,8 @@ class BannerView : RelativeLayout {
                     mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
                             mIndicatorMargin, mIndicatorGravity)
                 }
-                mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(), mViewPager2!!.orientation)
+                mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
+                        mViewPager2!!.orientation, isLoopForIndicator)
                 mIndicator!!.registerOnPageChangeCallback(mViewPager2)
             } else {
                 mIndicator?.unregisterOnPageChangeCallback(mViewPager2)
@@ -269,6 +276,7 @@ class BannerView : RelativeLayout {
             mDataSize = itemCount
         }
         mViewPager2?.orientation = orientation
+        mAdapter?.autoPlay(isAutoPlay)
         return this
     }
 
@@ -282,10 +290,13 @@ class BannerView : RelativeLayout {
     }
 
     /**
-     * 是否循环
+     * 自动循环轮播
+     * @param autoPlay true：默认自动-循环轮播 false：不自动-循环轮播 null：不循环
      */
-    fun setAutoPlay(autoPlay: Boolean): BannerView {
+    fun setAutoPlay(autoPlay: Boolean?): BannerView {
         isAutoPlay = autoPlay
+        mAdapter?.autoPlay(isAutoPlay)
+        isLoopForIndicator = autoPlay != null
         return this
     }
 
@@ -445,7 +456,7 @@ class BannerView : RelativeLayout {
         }
     }
 
-    class BannerHandler(view: BannerView) : Handler() {
+    class BannerHandler(view: BannerView) : Handler(Looper.getMainLooper()) {
         private val weakReference = WeakReference(view)
 
         override fun handleMessage(msg: Message) {
@@ -475,11 +486,32 @@ class BannerView : RelativeLayout {
         var onItemClickListener: OnItemClickListener? = null
         var onItemLongClickListener: OnItemLongClickListener? = null
 
+        /**
+         * 自动循环轮播（true：默认自动-循环轮播 false：不自动-循环轮播 null：不循环）
+         */
+        private var autoPlay: Boolean? = false
+
         init {
             transformData.addAll(mData)
             if (transformData.size < 1) throw RuntimeException("Minimum size 1")
-            transformData.add(0, this.transformData[this.transformData.size - 1])
-            transformData.add(this.transformData.size, this.transformData[1])
+        }
+
+        /**
+         * 是否循环轮播
+         */
+        fun autoPlay(autoPlay: Boolean?) {
+            this.autoPlay = autoPlay
+            when {
+                autoPlay != null && transformData.size == mData.size -> {
+                    // 循环轮播前后增加一页
+                    transformData.add(0, transformData[transformData.size - 1])
+                    transformData.add(transformData.size, transformData[1])
+                }
+                autoPlay == null -> {
+                    transformData.clear()
+                    transformData.addAll(mData)
+                }
+            }
         }
 
         /**
@@ -536,10 +568,10 @@ class BannerView : RelativeLayout {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val bannerViewHolder = onCreateVH(parent, viewType)
             bannerViewHolder.itemView.rootView.apply {
-                if (this.layoutParams == null || this.layoutParams.width != ViewGroup.LayoutParams.MATCH_PARENT ||
-                        this.layoutParams.height != ViewGroup.LayoutParams.MATCH_PARENT) {
-                    val layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                    this.layoutParams = layoutParams
+                if (layoutParams == null || layoutParams.width != ViewGroup.LayoutParams.MATCH_PARENT ||
+                        layoutParams.height != ViewGroup.LayoutParams.MATCH_PARENT) {
+                    val lp = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    layoutParams = lp
                 }
             }
             return bannerViewHolder

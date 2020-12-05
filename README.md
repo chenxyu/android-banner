@@ -4,7 +4,6 @@
 为了支持AndroidX使用Kotlin重构，滑动改用 `ViewPager2` ，自带4种动画，支持自定义Adapter（继承 `BaseBannerAdapter` ）和动画，支持自定义指示器位置大小颜色等。  
 使用AndroidX的 `Activity` 或 `Fragment` 都实现了 `LifecycleOwner` 接口，只需传入当前 `Lifecycle` 会根据当前生命周期管理 Banner开始和暂停。
 
-
 BannerView（基于ViewPager2）：支持动画。  
 BannerView2（基于RecyclerView）：不支持动画，isAutoPlay值null时可以设置ItemView的Margin（不循环）。
 
@@ -27,7 +26,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.4.5'
+	implementation 'com.github.chenxyu:android-banner:2.4.6'
 }
 ```
 
@@ -107,7 +106,7 @@ class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<Stri
         holder.initView(item, position, mContext)
     }
 
-    class ImageViewHolder(itemView: View) : BannerView2.ViewHolder<String>(itemView) {
+    class ImageViewHolder(itemView: View) : BannerView.ViewHolder<String>(itemView) {
 
         override fun initView(item: String?, position: Int?, context: Context?) {
             context?.let {

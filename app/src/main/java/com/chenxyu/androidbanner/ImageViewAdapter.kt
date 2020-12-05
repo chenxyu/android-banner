@@ -8,7 +8,6 @@ import android.widget.RelativeLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.chenxyu.bannerlibrary.BannerView
-import com.chenxyu.bannerlibrary.BannerView2
 
 /**
  * @Author:        ChenXingYu
@@ -31,7 +30,7 @@ class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<Stri
         holder.initView(item, position, mContext)
     }
 
-    class ImageViewHolder(itemView: View) : BannerView2.ViewHolder<String>(itemView) {
+    class ImageViewHolder(itemView: View) : BannerView.ViewHolder<String>(itemView) {
 
         override fun initView(item: String?, position: Int?, context: Context?) {
             context?.let {

@@ -91,6 +91,11 @@ abstract class Indicator {
     private lateinit var selectedParams: LinearLayout.LayoutParams
 
     /**
+     * 是否循环
+     */
+    private var isLoop: Boolean = true
+
+    /**
      * 添加OnPageChangeCallback
      */
     fun registerOnPageChangeCallback(viewPager2: ViewPager2?) {
@@ -175,21 +180,23 @@ abstract class Indicator {
             indicator.isSelected = false
             indicator.layoutParams = normalParams
         }
-        when (currentPosition) {
-            0 -> {
-                mIndicators[mIndicators.size - 1].isSelected = true
-                mIndicators[mIndicators.size - 1].layoutParams = selectedParams
-                return
-            }
-            itemCount - 1 -> {
-                mIndicators[0].isSelected = true
-                mIndicators[0].layoutParams = selectedParams
-                return
-            }
-            itemCount - 2 -> {
-                mIndicators[mIndicators.size - 1].isSelected = true
-                mIndicators[mIndicators.size - 1].layoutParams = selectedParams
-                return
+        if (isLoop) {
+            when (currentPosition) {
+                0 -> {
+                    mIndicators[mIndicators.size - 1].isSelected = true
+                    mIndicators[mIndicators.size - 1].layoutParams = selectedParams
+                    return
+                }
+                itemCount - 1 -> {
+                    mIndicators[0].isSelected = true
+                    mIndicators[0].layoutParams = selectedParams
+                    return
+                }
+                itemCount - 2 -> {
+                    mIndicators[mIndicators.size - 1].isSelected = true
+                    mIndicators[mIndicators.size - 1].layoutParams = selectedParams
+                    return
+                }
             }
         }
         for (i in mIndicators.indices) {
@@ -206,8 +213,10 @@ abstract class Indicator {
      * @param relativeLayout BannerView2
      * @param count 数量
      * @param orientation 方向
+     * @param isLoop 是否循环
      */
-    fun setIndicator(relativeLayout: RelativeLayout, count: Int, orientation: Int) {
+    fun setIndicator(relativeLayout: RelativeLayout, count: Int, orientation: Int, isLoop: Boolean = true) {
+        this.isLoop = isLoop
         if (relativeLayout.childCount == 2) relativeLayout.removeViewAt(1)
         mIndicators.clear()
         val indicatorLayout = LinearLayout(relativeLayout.context).apply {
