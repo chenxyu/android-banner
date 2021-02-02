@@ -9,6 +9,7 @@
     <com.chenxyu.bannerlibrary.BannerView
         android:id="@+id/ad_banner_view"
         android:layout_width="match_parent"
+        android:background="@android:color/darker_gray"
         android:layout_height="200dp" />
 
     <com.chenxyu.bannerlibrary.BannerView2

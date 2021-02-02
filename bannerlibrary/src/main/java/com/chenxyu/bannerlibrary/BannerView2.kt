@@ -155,6 +155,7 @@ class BannerView2 : RelativeLayout {
 
         mLayoutManager = LayoutManagerImpl(context, orientation, false)
         mRecyclerView = RecyclerView(context)
+        mRecyclerView?.id = R.id.recycler_view_id
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -288,9 +289,9 @@ class BannerView2 : RelativeLayout {
             margins: Margins? = null
     ): BannerView2 {
         mAdapter = adapter.apply {
+            autoPlay(isAutoPlay)
             mDataSize = itemCount
         }
-        mAdapter?.autoPlay(isAutoPlay)
         margins?.let { mAdapter?.margins = it }
         return this
     }
@@ -484,10 +485,14 @@ class BannerView2 : RelativeLayout {
          * @param position [onBindViewHolder]里面的position
          */
         fun getRealPosition(position: Int): Int {
-            return when (position) {
-                0 -> mData.size - 1
-                transformData.size - 1 -> 0
-                else -> position - 1
+            return if (autoPlay != null) {
+                when (position) {
+                    0 -> mData.size - 1
+                    transformData.size - 1 -> 0
+                    else -> position - 1
+                }
+            } else {
+                position
             }
         }
 
@@ -560,16 +565,10 @@ class BannerView2 : RelativeLayout {
          */
         override fun onBindViewHolder(holder: VH, position: Int) {
             holder.itemView.setOnClickListener {
-                onItemClickListener?.onItemClick(
-                        it,
-                        if (autoPlay != null) getRealPosition(position) else position
-                )
+                onItemClickListener?.onItemClick(it, getRealPosition(position))
             }
             holder.itemView.setOnLongClickListener {
-                onItemLongClickListener?.onItemLongClick(
-                        it,
-                        if (autoPlay != null) getRealPosition(position) else position
-                )
+                onItemLongClickListener?.onItemLongClick(it, getRealPosition(position))
                 return@setOnLongClickListener true
             }
             onBindViewHolder(holder, position, transformData[position])

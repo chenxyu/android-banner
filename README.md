@@ -6,6 +6,7 @@
 
 BannerView（基于ViewPager2）：支持动画。  
 BannerView2（基于RecyclerView）：不支持动画，isAutoPlay值null时可以设置ItemView的Margin（不循环）。
+Indicator：指示器可以单独使用，支持ViewPager2和RecyclerView。
 
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
@@ -26,7 +27,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.4.6'
+	implementation 'com.github.chenxyu:android-banner:2.5.0'
 }
 ```
 

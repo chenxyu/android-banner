@@ -6,13 +6,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.chenxyu'
 android {
     compileSdkVersion 30
-    buildToolsVersion '30.0.2'
 
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 30
         versionCode 21
-        versionName "2.4.6"
+        versionName "2.5.0"
     }
     buildTypes {
         release {

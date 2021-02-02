@@ -166,6 +166,7 @@ class BannerView : RelativeLayout {
         attributes.recycle()
 
         mViewPager2 = ViewPager2(context)
+        mViewPager2?.id = R.id.view_pager_id
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -213,6 +214,7 @@ class BannerView : RelativeLayout {
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     when (state) {
+                        // 闲置
                         ViewPager2.SCROLL_STATE_IDLE -> {
                             isTouch = false
                             if (it.currentItem == 0) {
@@ -222,9 +224,11 @@ class BannerView : RelativeLayout {
                                 it.setCurrentItem(1, false)
                             }
                         }
+                        // 拖拽中
                         ViewPager2.SCROLL_STATE_DRAGGING -> {
                             isTouch = true
                         }
+                        // 惯性滑动中
                         ViewPager2.SCROLL_STATE_SETTLING -> {
                             isTouch = false
                         }
@@ -232,27 +236,33 @@ class BannerView : RelativeLayout {
                 }
             })
 
-            // 设置指示器
-            if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
-                    mIndicatorMargin != null || mIndicatorGravity != null) {
-                if (mIndicator == null) {
-                    mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
-                            mIndicatorMargin, mIndicatorGravity)
+            if (isAutoPlay != null) {
+                // 设置指示器
+                if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
+                        mIndicatorMargin != null || mIndicatorGravity != null) {
+                    if (mIndicator == null) {
+                        mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                                mIndicatorMargin, mIndicatorGravity)
+                    }
+                    mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
+                            mViewPager2!!.orientation, isLoopForIndicator)
+                    mIndicator!!.registerOnPageChangeCallback(mViewPager2)
+                } else {
+                    mIndicator?.unregisterOnPageChangeCallback(mViewPager2)
+                    mIndicator = null
                 }
-                mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
-                        mViewPager2!!.orientation, isLoopForIndicator)
-                mIndicator!!.registerOnPageChangeCallback(mViewPager2)
+                // 默认设置第一页
+                it.setCurrentItem(1, false)
+
+                if (mLifecycleOwner != null) {
+                    mLifecycleOwner?.lifecycle?.addObserver(mLifecycleEventObserver)
+                } else {
+                    mHandler?.sendEmptyMessageDelayed(WHAT_NEXT_PAGE, mDelayMillis)
+                }
             } else {
+                mHandler?.removeMessages(WHAT_NEXT_PAGE)
                 mIndicator?.unregisterOnPageChangeCallback(mViewPager2)
                 mIndicator = null
-            }
-            // 默认设置第一页
-            it.setCurrentItem(1, false)
-
-            if (mLifecycleOwner != null) {
-                mLifecycleOwner?.lifecycle?.addObserver(mLifecycleEventObserver)
-            } else {
-                mHandler?.sendEmptyMessageDelayed(WHAT_NEXT_PAGE, mDelayMillis)
             }
         }
     }
@@ -273,10 +283,10 @@ class BannerView : RelativeLayout {
      */
     fun setAdapter(adapter: Adapter<*, *>, orientation: Int = HORIZONTAL): BannerView {
         mAdapter = adapter.apply {
+            autoPlay(isAutoPlay)
             mDataSize = itemCount
         }
         mViewPager2?.orientation = orientation
-        mAdapter?.autoPlay(isAutoPlay)
         return this
     }
 
@@ -543,10 +553,14 @@ class BannerView : RelativeLayout {
          * @param position [onBindViewHolder]里面的position
          */
         fun getRealPosition(position: Int): Int {
-            return when (position) {
-                0 -> mData.size - 1
-                transformData.size - 1 -> 0
-                else -> position - 1
+            return if (autoPlay != null) {
+                when (position) {
+                    0 -> mData.size - 1
+                    transformData.size - 1 -> 0
+                    else -> position - 1
+                }
+            } else {
+                position
             }
         }
 

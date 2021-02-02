@@ -19,6 +19,12 @@ import com.chenxyu.bannerlibrary.extend.getDrawable2
  */
 abstract class Indicator {
     /**
+     * 指示器在View最下面或最右边（不重叠在View上）
+     * 最下面或最右边根据方向决定
+     */
+    var overlap: Boolean = true
+
+    /**
      * 指示器外边距（DP）
      */
     var indicatorMargin: Int = 4
@@ -45,6 +51,7 @@ abstract class Indicator {
 
     /**
      * 指示器布局的宽和高（DP）
+     * 宽和高根据方向决定
      */
     var indicatorLayoutWH: Int = 20
 
@@ -101,21 +108,8 @@ abstract class Indicator {
     fun registerOnPageChangeCallback(viewPager2: ViewPager2?) {
         if (mVp2PageChangeCallback == null) {
             mVp2PageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageScrollStateChanged(state: Int) {
-                    when (state) {
-                        // 闲置
-                        ViewPager2.SCROLL_STATE_IDLE -> {
-                            toggleIndicator(null, viewPager2)
-                        }
-                        // 拖拽中
-                        ViewPager2.SCROLL_STATE_DRAGGING -> {
-
-                        }
-                        // 惯性滑动中
-                        ViewPager2.SCROLL_STATE_SETTLING -> {
-                            toggleIndicator(null, viewPager2)
-                        }
-                    }
+                override fun onPageSelected(position: Int) {
+                    toggleIndicator(null, viewPager2)
                 }
             }
             viewPager2?.registerOnPageChangeCallback(mVp2PageChangeCallback!!)
@@ -218,6 +212,7 @@ abstract class Indicator {
     fun setIndicator(relativeLayout: RelativeLayout, count: Int, orientation: Int, isLoop: Boolean = true) {
         this.isLoop = isLoop
         if (relativeLayout.childCount == 2) relativeLayout.removeViewAt(1)
+        if (relativeLayout.childCount > 2) throw RuntimeException("There can only be one child view")
         mIndicators.clear()
         val indicatorLayout = LinearLayout(relativeLayout.context).apply {
             this.orientation = orientation
@@ -238,7 +233,7 @@ abstract class Indicator {
             selectedParams = LinearLayout.LayoutParams(
                     indicatorSelectedW.dpToPx(relativeLayout.context),
                     indicatorSelectedH.dpToPx(relativeLayout.context))
-            if (orientation == BannerView2.HORIZONTAL) {
+            if (orientation == RecyclerView.HORIZONTAL) {
                 normalParams.setMargins(indicatorMargin.dpToPx(relativeLayout.context), 0,
                         indicatorMargin.dpToPx(relativeLayout.context), 0)
                 selectedParams.setMargins(indicatorMargin.dpToPx(relativeLayout.context), 0,
@@ -259,18 +254,38 @@ abstract class Indicator {
         mIndicators[0].layoutParams = selectedParams
 
         when (orientation) {
-            BannerView2.HORIZONTAL -> {
+            RecyclerView.HORIZONTAL -> {
                 val layoutParams = RelativeLayout.LayoutParams(
                         RelativeLayout.LayoutParams.MATCH_PARENT,
                         indicatorLayoutWH.dpToPx(relativeLayout.context))
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+                if (overlap) {
+                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+                } else {
+                    val h = if (relativeLayout.layoutParams.height == -1) {
+                        relativeLayout.context.resources.displayMetrics.heightPixels
+                    } else {
+                        relativeLayout.layoutParams.height
+                    }
+                    relativeLayout.getChildAt(0).layoutParams.height = h - indicatorLayoutWH.dpToPx(relativeLayout.context)
+                    layoutParams.addRule(RelativeLayout.BELOW, relativeLayout.getChildAt(0).id)
+                }
                 relativeLayout.addView(indicatorLayout, layoutParams)
             }
-            BannerView2.VERTICAL -> {
+            RecyclerView.VERTICAL -> {
                 val layoutParams = RelativeLayout.LayoutParams(
                         indicatorLayoutWH.dpToPx(relativeLayout.context),
                         RelativeLayout.LayoutParams.MATCH_PARENT)
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END)
+                if (overlap) {
+                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END)
+                } else {
+                    val w = if (relativeLayout.layoutParams.width == -1) {
+                        relativeLayout.context.resources.displayMetrics.widthPixels
+                    } else {
+                        relativeLayout.layoutParams.width
+                    }
+                    relativeLayout.getChildAt(0).layoutParams.width = w - indicatorLayoutWH.dpToPx(relativeLayout.context)
+                    layoutParams.addRule(RelativeLayout.END_OF, relativeLayout.getChildAt(0).id)
+                }
                 relativeLayout.addView(indicatorLayout, layoutParams)
             }
         }
