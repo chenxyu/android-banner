@@ -8,6 +8,7 @@ import android.widget.RelativeLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.chenxyu.bannerlibrary.BannerView
+import com.chenxyu.bannerlibrary.BannerView2
 
 /**
  * @Author:        ChenXingYu
@@ -15,8 +16,8 @@ import com.chenxyu.bannerlibrary.BannerView
  * @Description:
  * @Version:       1.0
  */
-class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<String?>)
-    : BannerView.Adapter<ImageViewAdapter.ImageViewHolder, String>(mImages) {
+class ImageViewAdapter2(private val mContext: Context?, mImages: MutableList<String?>)
+    : BannerView2.Adapter<ImageViewAdapter2.ImageViewHolder, String>(mImages) {
 
     override fun onCreateVH(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)

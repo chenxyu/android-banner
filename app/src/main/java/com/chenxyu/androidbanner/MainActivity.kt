@@ -49,6 +49,23 @@ class MainActivity : FragmentActivity() {
         }
 
         // BannerView2
+        val mADBannerView2 = findViewById<BannerView2>(R.id.ad_banner_view2)
+        val mImageViewAdapter2 = ImageViewAdapter2(this, mImageUrls)
+        mADBannerView2.setLifecycle(this)
+                .setOrientation(BannerView2.HORIZONTAL)
+                .setAdapter(mImageViewAdapter2, BannerView2.Margins(20, 0, 20, 0))
+                .setShowCount(2)
+                .setDelayMillis(3000L)
+                .setDuration(500)
+                .build()
+        mImageViewAdapter2.onItemClickListener = object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                Toast.makeText(this@MainActivity, position.toString(),
+                        Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // BannerView2
         val mNewsBannerView = findViewById<BannerView2>(R.id.news_banner_view)
         val mTitles = mutableListOf<String?>()
         mTitles.add("世卫组织发言人：新冠疫情尚未到达顶峰")

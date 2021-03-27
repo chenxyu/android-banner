@@ -15,10 +15,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSmoothScroller
-import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.chenxyu.bannerlibrary.extend.dpToPx
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
@@ -56,6 +53,11 @@ class BannerView2 : RelativeLayout {
      *当前页面数据长度
      */
     private var mDataSize: Int = -1
+
+    /**
+     * 一屏显示个数
+     */
+    private var mShowCount: Int = 1
 
     /**
      * 页面切换延迟时间
@@ -134,20 +136,21 @@ class BannerView2 : RelativeLayout {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView2)
         var orientation: Int
         attributes.let {
-            orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
-            it.getResourceId(R.styleable.BannerView_indicatorNormal, -1).takeIf { resource ->
+            orientation = it.getInteger(R.styleable.BannerView2_orientation, HORIZONTAL)
+            it.getResourceId(R.styleable.BannerView2_orientation, -1).takeIf { resource ->
                 resource != -1
             }?.apply { mIndicatorNormal = this }
-            it.getResourceId(R.styleable.BannerView_indicatorSelected, -1).takeIf { resource ->
+            it.getResourceId(R.styleable.BannerView2_orientation, -1).takeIf { resource ->
                 resource != -1
             }?.apply { mIndicatorSelected = this }
-            it.getDimension(R.styleable.BannerView_indicatorMargin, 0f).takeIf { dimension ->
-                dimension > 0f
+            it.getDimension(R.styleable.BannerView2_orientation, -1F).takeIf { dimension ->
+                dimension != -1F
             }?.apply { mIndicatorMargin = this.toInt() }
-            mIndicatorGravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
-            isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
-            mDelayMillis = it.getInteger(R.styleable.BannerView_delayMillis, 5000).toLong()
-            it.getInteger(R.styleable.BannerView_duration, 0).takeIf { integer ->
+            it.getInteger(R.styleable.BannerView2_orientation, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mIndicatorGravity = this }
+            mDelayMillis = it.getInteger(R.styleable.BannerView2_orientation, 5000).toLong()
+            it.getInteger(R.styleable.BannerView2_orientation, 0).takeIf { integer ->
                 integer != 0
             }?.apply { mDuration = this }
         }
@@ -199,7 +202,10 @@ class BannerView2 : RelativeLayout {
         mLayoutManager?.mDuration = mDuration
         mRecyclerView?.apply {
             layoutManager = mLayoutManager
-            mAdapter?.let { adapter = it }
+            mAdapter?.let {
+                it.orientation = mLayoutManager?.orientation
+                adapter = it
+            }
         }
 
         mRecyclerView?.clearOnScrollListeners()
@@ -288,7 +294,7 @@ class BannerView2 : RelativeLayout {
             margins: Margins? = null
     ): BannerView2 {
         mAdapter = adapter.apply {
-            autoPlay(isAutoPlay)
+            autoPlay(isAutoPlay, mShowCount)
             mDataSize = itemCount
         }
         margins?.let { mAdapter?.margins = it }
@@ -299,7 +305,7 @@ class BannerView2 : RelativeLayout {
      * 设置指示器
      * @param indicator 自定义指示器需继承此类[Indicator]
      */
-    fun setIndicator(indicator: Indicator? = DefaultIndicator()): BannerView2 {
+    fun setIndicator(indicator: Indicator): BannerView2 {
         mIndicator = indicator
         return this
     }
@@ -310,7 +316,7 @@ class BannerView2 : RelativeLayout {
      */
     fun setAutoPlay(autoPlay: Boolean? = null): BannerView2 {
         isAutoPlay = autoPlay
-        mAdapter?.autoPlay(isAutoPlay)
+        mAdapter?.autoPlay(isAutoPlay, mShowCount)
         isLoopForIndicator = autoPlay != null
         return this
     }
@@ -345,6 +351,16 @@ class BannerView2 : RelativeLayout {
         }
         clipToOutline = radius > 0F
         invalidate()
+        return this
+    }
+
+    /**
+     * 显示一屏显示个数（默认1个）
+     * @param count 显示个数
+     */
+    fun setShowCount(count: Int): BannerView2 {
+        mShowCount = count
+        mAdapter?.autoPlay(isAutoPlay, mShowCount)
         return this
     }
 
@@ -426,12 +442,22 @@ class BannerView2 : RelativeLayout {
         /**
          * 自动循环轮播（true：自动-循环轮播 false：不自动-循环轮播 null：默认不循环）
          */
-        private var autoPlay: Boolean? = false
+        private var autoPlay: Boolean? = null
 
         /**
          * 间距
          */
         var margins: Margins? = null
+
+        /**
+         * 一屏显示个数
+         */
+        var showCount: Int = 1
+
+        /**
+         * 方向
+         */
+        var orientation: Int? = HORIZONTAL
 
         init {
             transformData.addAll(mData)
@@ -440,8 +466,9 @@ class BannerView2 : RelativeLayout {
         /**
          * 是否循环轮播
          */
-        fun autoPlay(autoPlay: Boolean?) {
+        fun autoPlay(autoPlay: Boolean?, showCount: Int) {
             this.autoPlay = autoPlay
+            this.showCount = showCount
             when {
                 autoPlay != null && transformData.size == mData.size -> {
                     // 循环轮播前后增加一页
@@ -519,31 +546,46 @@ class BannerView2 : RelativeLayout {
          */
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val bannerViewHolder = onCreateVH(parent, viewType)
-            if (autoPlay != null) {
-                // 循环轮播强制MATCH_PARENT
-                bannerViewHolder.itemView.rootView.apply {
-                    val layoutParams = RecyclerView.LayoutParams(
-                            RecyclerView.LayoutParams.MATCH_PARENT,
-                            RecyclerView.LayoutParams.MATCH_PARENT
-                    )
-                    this.layoutParams = layoutParams
-                }
-            } else {
-                // 非循环轮播可设置Margin
-                bannerViewHolder.itemView.rootView.apply {
-                    if (margins != null) {
-                        measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
-                        val layoutParams = RecyclerView.LayoutParams(measuredWidth, measuredHeight)
-                        margins?.let {
-                            layoutParams.setMargins(
-                                    it.leftMargin.dpToPx(context),
-                                    it.topMargin.dpToPx(context),
-                                    it.rightMargin.dpToPx(context),
-                                    it.bottomMargin.dpToPx(context)
-                            )
-                        }
+            val displayMetrics = parent.resources.displayMetrics
+            bannerViewHolder.itemView.rootView?.apply {
+                if (autoPlay != null) {
+                    // 循环轮播强制MATCH_PARENT
+                    bannerViewHolder.itemView.rootView.apply {
+                        val layoutParams = RecyclerView.LayoutParams(
+                                RecyclerView.LayoutParams.MATCH_PARENT,
+                                RecyclerView.LayoutParams.MATCH_PARENT
+                        )
                         this.layoutParams = layoutParams
                     }
+                } else {
+                    // 非循环轮播
+                    var width: Int? = null
+                    var height: Int? = null
+                    // 显示个数
+                    if (showCount > 1) {
+                        when (orientation) {
+                            HORIZONTAL -> {
+                                width = displayMetrics.widthPixels.div(showCount)
+                            }
+                            VERTICAL -> {
+                                height = displayMetrics.heightPixels.div(showCount)
+                            }
+                        }
+                    }
+                    val layoutParams = RecyclerView.LayoutParams(
+                            width ?: RecyclerView.LayoutParams.MATCH_PARENT,
+                            height ?: RecyclerView.LayoutParams.MATCH_PARENT
+                    )
+                    // 设置Margin
+                    margins?.let {
+                        layoutParams.setMargins(
+                                it.leftMargin.dpToPx(context),
+                                it.topMargin.dpToPx(context),
+                                it.rightMargin.dpToPx(context),
+                                it.bottomMargin.dpToPx(context)
+                        )
+                    }
+                    this.layoutParams = layoutParams
                 }
             }
             return bannerViewHolder

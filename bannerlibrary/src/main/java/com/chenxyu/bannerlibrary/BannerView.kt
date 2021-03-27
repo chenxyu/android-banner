@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
@@ -152,10 +151,12 @@ class BannerView : RelativeLayout {
             it.getResourceId(R.styleable.BannerView_indicatorSelected, -1).takeIf { resource ->
                 resource != -1
             }?.apply { mIndicatorSelected = this }
-            it.getDimension(R.styleable.BannerView_indicatorMargin, 0f).takeIf { dimension ->
-                dimension > 0f
+            it.getDimension(R.styleable.BannerView_indicatorMargin, -1F).takeIf { dimension ->
+                dimension != -1F
             }?.apply { mIndicatorMargin = this.toInt() }
-            mIndicatorGravity = it.getInteger(R.styleable.BannerView_indicatorGravity, Gravity.CENTER)
+            it.getInteger(R.styleable.BannerView_indicatorGravity, -1).takeIf { resource ->
+                resource != -1
+            }?.apply { mIndicatorGravity = this }
             isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
             mOffscreenPageLimit = it.getInteger(R.styleable.BannerView_offscreenPageLimit, mOffscreenPageLimit)
             mDelayMillis = it.getInteger(R.styleable.BannerView_delayMillis, 5000).toLong()
@@ -582,7 +583,7 @@ class BannerView : RelativeLayout {
          */
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val bannerViewHolder = onCreateVH(parent, viewType)
-            bannerViewHolder.itemView.rootView.apply {
+            bannerViewHolder.itemView.rootView?.apply {
                 val lp = RecyclerView.LayoutParams(
                         RecyclerView.LayoutParams.MATCH_PARENT,
                         RecyclerView.LayoutParams.MATCH_PARENT

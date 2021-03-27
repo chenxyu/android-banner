@@ -97,8 +97,6 @@ class ImageViewAdapter(private val mContext: Context?, mImages: MutableList<Stri
 
     override fun onCreateVH(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val imageView = ImageView(mContext)
-        val layoutParams = RelativeLayout.LayoutParams(350, 300)
-        imageView.layoutParams = layoutParams
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ImageViewHolder(imageView)
     }
@@ -153,17 +151,18 @@ class NewsAdapter(data: MutableList<String?>) :
 | setLifecycle | 观察Fragment或Activity生命周期控制Banner开始和暂停 |
 | setAdapter | 自定义Adapter（继承BaseBannerAdapter），滑动方向 |
 | setAutoPlay | 自动循环轮播 |
-| setOffscreenPageLimit | 预加载页面限制 |
+| setOffscreenPageLimit | 预加载页面限制（Banner） |
 | setDelayMillis | 页面切换延迟时间 |
 | setDuration | 滑动持续时间 |
 | setRoundRect | Banner圆角 |
-| setPageMargin | 设置页面间距 |
-| setMultiPage | 一屏多页 ，在[setAdapter]之后设置 |
-| setScalePageTransformer | 缩放动画，在[setAdapter]之后设置 |
-| setZoomOutPageTransformer | 官方示例缩放动画，在[setAdapter]之后设置 |
-| setRotationPageTransformer | 官方示例旋转动画，在[setAdapter]之后设置 |
-| setDepthPageTransformer | 官方示例深度动画，在[setAdapter]之后设置 |
-| setPageTransformer | 自定义动画 |
+| setShowCount | 显示一屏显示个数（Banner2） |
+| setPageMargin | 设置页面间距（Banner） |
+| setMultiPage | 一屏多页 ，在[setAdapter]之后设置（Banner） |
+| setScalePageTransformer | 缩放动画，在[setAdapter]之后设置（Banner） |
+| setZoomOutPageTransformer | 官方示例缩放动画，在[setAdapter]之后设置（Banner） |
+| setRotationPageTransformer | 官方示例旋转动画，在[setAdapter]之后设置（Banner） |
+| setDepthPageTransformer | 官方示例深度动画，在[setAdapter]之后设置（Banner） |
+| setPageTransformer | 自定义动画（Banner）（Banner） |
 | build | 创建Banner |
 
 | 方法名 | 说明 |
@@ -178,7 +177,7 @@ class NewsAdapter(data: MutableList<String?>) :
 | app:indicatorSelected | 选中指示器DrawableRes |
 | app:indicatorMargin | 指示器Margin |
 | app:indicatorGravity | 设置指示器位置 |
-| app:autoPlay | 自动循环轮播 |
+| app:autoPlay | 自动循环轮播（Banner） |
 | app:offscreenPageLimit | 预加载页面限制 |
 | app:delayMillis | 页面切换延迟时间 |
 | app:duration | 滑动持续时间 |

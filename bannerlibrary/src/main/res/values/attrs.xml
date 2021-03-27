@@ -69,7 +69,6 @@
         <attr name="indicatorNormal" />
         <attr name="indicatorSelected" />
         <attr name="indicatorMargin" />
-        <attr name="autoPlay" />
         <attr name="delayMillis" />
         <attr name="duration" />
     </declare-styleable>
