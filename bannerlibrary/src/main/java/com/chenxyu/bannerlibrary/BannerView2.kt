@@ -32,9 +32,9 @@ import java.lang.ref.WeakReference
  */
 class BannerView2 : RelativeLayout {
     companion object {
+        private const val WHAT_NEXT_PAGE = 1
         const val HORIZONTAL = RecyclerView.HORIZONTAL
         const val VERTICAL = RecyclerView.VERTICAL
-        const val WHAT_NEXT_PAGE = 1
     }
 
     private var mRecyclerView: RecyclerView? = null
@@ -223,21 +223,22 @@ class BannerView2 : RelativeLayout {
             }
         })
 
-        if (isAutoPlay != null) {
-            // 设置指示器
-            if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
-                    mIndicatorMargin != null || mIndicatorGravity != null) {
-                if (mIndicator == null) {
-                    mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
-                            mIndicatorMargin, mIndicatorGravity)
-                }
-                mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
-                        mLayoutManager!!.orientation, isLoopForIndicator)
-                mIndicator!!.addOnScrollListener(mRecyclerView)
-            } else {
-                mIndicator?.removeScrollListener(mRecyclerView)
-                mIndicator = null
+        // 设置指示器
+        if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
+                mIndicatorMargin != null || mIndicatorGravity != null) {
+            if (mIndicator == null) {
+                mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                        mIndicatorMargin, mIndicatorGravity)
             }
+            mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
+                    mLayoutManager!!.orientation, isLoopForIndicator)
+            mIndicator!!.addOnScrollListener(mRecyclerView)
+        } else {
+            mIndicator?.removeScrollListener(mRecyclerView)
+            mIndicator = null
+        }
+
+        if (isAutoPlay != null) {
             // 默认设置第一页
             mRecyclerView?.scrollToPosition(1)
             if (mPagerSnapHelper == null) {
@@ -249,8 +250,6 @@ class BannerView2 : RelativeLayout {
             mHandler?.removeMessages(WHAT_NEXT_PAGE)
             mPagerSnapHelper?.attachToRecyclerView(null)
             mPagerSnapHelper = null
-            mIndicator?.removeScrollListener(mRecyclerView)
-            mIndicator = null
         }
     }
 
@@ -523,22 +522,18 @@ class BannerView2 : RelativeLayout {
             if (autoPlay != null) {
                 // 循环轮播强制MATCH_PARENT
                 bannerViewHolder.itemView.rootView.apply {
-                    if (layoutParams == null || layoutParams.width != ViewGroup.LayoutParams.MATCH_PARENT ||
-                            layoutParams.height != ViewGroup.LayoutParams.MATCH_PARENT
-                    ) {
-                        val layoutParams = LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        this.layoutParams = layoutParams
-                    }
+                    val layoutParams = RecyclerView.LayoutParams(
+                            RecyclerView.LayoutParams.MATCH_PARENT,
+                            RecyclerView.LayoutParams.MATCH_PARENT
+                    )
+                    this.layoutParams = layoutParams
                 }
             } else {
                 // 非循环轮播可设置Margin
                 bannerViewHolder.itemView.rootView.apply {
                     if (margins != null) {
-                        measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-                        val layoutParams = LayoutParams(measuredWidth, measuredHeight)
+                        measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
+                        val layoutParams = RecyclerView.LayoutParams(measuredWidth, measuredHeight)
                         margins?.let {
                             layoutParams.setMargins(
                                     it.leftMargin.dpToPx(context),

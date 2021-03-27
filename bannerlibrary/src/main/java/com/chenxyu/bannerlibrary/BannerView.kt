@@ -41,9 +41,9 @@ import java.lang.ref.WeakReference
  */
 class BannerView : RelativeLayout {
     companion object {
+        private const val WHAT_NEXT_PAGE = 1
         const val HORIZONTAL = ViewPager2.ORIENTATION_HORIZONTAL
         const val VERTICAL = ViewPager2.ORIENTATION_VERTICAL
-        const val WHAT_NEXT_PAGE = 1
     }
 
     private var mViewPager2: ViewPager2? = null
@@ -217,11 +217,13 @@ class BannerView : RelativeLayout {
                         // 闲置
                         ViewPager2.SCROLL_STATE_IDLE -> {
                             isTouch = false
-                            if (it.currentItem == 0) {
-                                it.setCurrentItem(mDataSize - 2, false)
-                            }
-                            if (it.currentItem == mDataSize - 1) {
-                                it.setCurrentItem(1, false)
+                            if (isAutoPlay != null) {
+                                if (it.currentItem == 0) {
+                                    it.setCurrentItem(mDataSize - 2, false)
+                                }
+                                if (it.currentItem == mDataSize - 1) {
+                                    it.setCurrentItem(1, false)
+                                }
                             }
                         }
                         // 拖拽中
@@ -236,21 +238,22 @@ class BannerView : RelativeLayout {
                 }
             })
 
-            if (isAutoPlay != null) {
-                // 设置指示器
-                if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
-                        mIndicatorMargin != null || mIndicatorGravity != null) {
-                    if (mIndicator == null) {
-                        mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
-                                mIndicatorMargin, mIndicatorGravity)
-                    }
-                    mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
-                            mViewPager2!!.orientation, isLoopForIndicator)
-                    mIndicator!!.registerOnPageChangeCallback(mViewPager2)
-                } else {
-                    mIndicator?.unregisterOnPageChangeCallback(mViewPager2)
-                    mIndicator = null
+            // 设置指示器
+            if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
+                    mIndicatorMargin != null || mIndicatorGravity != null) {
+                if (mIndicator == null) {
+                    mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                            mIndicatorMargin, mIndicatorGravity)
                 }
+                mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
+                        mViewPager2!!.orientation, isLoopForIndicator)
+                mIndicator!!.registerOnPageChangeCallback(mViewPager2)
+            } else {
+                mIndicator?.unregisterOnPageChangeCallback(mViewPager2)
+                mIndicator = null
+            }
+
+            if (isAutoPlay != null) {
                 // 默认设置第一页
                 it.setCurrentItem(1, false)
 
@@ -261,8 +264,6 @@ class BannerView : RelativeLayout {
                 }
             } else {
                 mHandler?.removeMessages(WHAT_NEXT_PAGE)
-                mIndicator?.unregisterOnPageChangeCallback(mViewPager2)
-                mIndicator = null
             }
         }
     }
@@ -582,11 +583,11 @@ class BannerView : RelativeLayout {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val bannerViewHolder = onCreateVH(parent, viewType)
             bannerViewHolder.itemView.rootView.apply {
-                if (layoutParams == null || layoutParams.width != ViewGroup.LayoutParams.MATCH_PARENT ||
-                        layoutParams.height != ViewGroup.LayoutParams.MATCH_PARENT) {
-                    val lp = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                    layoutParams = lp
-                }
+                val lp = RecyclerView.LayoutParams(
+                        RecyclerView.LayoutParams.MATCH_PARENT,
+                        RecyclerView.LayoutParams.MATCH_PARENT
+                )
+                layoutParams = lp
             }
             return bannerViewHolder
         }

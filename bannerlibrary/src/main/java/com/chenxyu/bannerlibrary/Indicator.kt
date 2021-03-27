@@ -192,13 +192,16 @@ abstract class Indicator {
                     return
                 }
             }
-        }
-        for (i in mIndicators.indices) {
-            if (currentPosition == i) {
-                mIndicators[i - 1].isSelected = true
-                mIndicators[i - 1].layoutParams = selectedParams
-                return
+            for (i in mIndicators.indices) {
+                if (currentPosition == i) {
+                    mIndicators[i - 1].isSelected = true
+                    mIndicators[i - 1].layoutParams = selectedParams
+                    return
+                }
             }
+        } else {
+            mIndicators[currentPosition].isSelected = true
+            mIndicators[currentPosition].layoutParams = selectedParams
         }
     }
 
