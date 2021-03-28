@@ -23,7 +23,10 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.chenxyu.bannerlibrary.extend.az
 import com.chenxyu.bannerlibrary.extend.dpToPx
+import com.chenxyu.bannerlibrary.indicator.DefaultIndicator
+import com.chenxyu.bannerlibrary.indicator.Indicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
 import com.chenxyu.bannerlibrary.transformer.DepthPageTransformer
@@ -144,25 +147,33 @@ class BannerView : RelativeLayout {
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView)
         attributes.let {
-            mViewPager2?.orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
-            it.getResourceId(R.styleable.BannerView_indicatorNormal, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mIndicatorNormal = this }
-            it.getResourceId(R.styleable.BannerView_indicatorSelected, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mIndicatorSelected = this }
-            it.getDimension(R.styleable.BannerView_indicatorMargin, -1F).takeIf { dimension ->
-                dimension != -1F
-            }?.apply { mIndicatorMargin = this.toInt() }
-            it.getInteger(R.styleable.BannerView_indicatorGravity, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mIndicatorGravity = this }
-            isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
-            mOffscreenPageLimit = it.getInteger(R.styleable.BannerView_offscreenPageLimit, mOffscreenPageLimit)
-            mDelayMillis = it.getInteger(R.styleable.BannerView_delayMillis, 5000).toLong()
-            it.getInteger(R.styleable.BannerView_duration, 0).takeIf { integer ->
-                integer != 0
-            }?.apply { mDuration = this }
+            if (it.hasValue(R.styleable.BannerView_orientation)) {
+                mViewPager2?.orientation = it.getInteger(R.styleable.BannerView_orientation, HORIZONTAL)
+            }
+            if (it.hasValue(R.styleable.BannerView_indicatorNormal)) {
+                mIndicatorNormal = it.getResourceId(R.styleable.BannerView_indicatorNormal, -1)
+            }
+            if (it.hasValue(R.styleable.BannerView_indicatorSelected)) {
+                mIndicatorSelected = it.getResourceId(R.styleable.BannerView_indicatorSelected, -1)
+            }
+            if (it.hasValue(R.styleable.BannerView_indicatorMargin)) {
+                mIndicatorMargin = it.getDimension(R.styleable.BannerView_indicatorMargin, -1F).toInt()
+            }
+            if (it.hasValue(R.styleable.BannerView_indicatorGravity)) {
+                mIndicatorGravity = it.getInteger(R.styleable.BannerView_indicatorGravity, -1)
+            }
+            if (it.hasValue(R.styleable.BannerView_autoPlay)) {
+                isAutoPlay = it.getBoolean(R.styleable.BannerView_autoPlay, true)
+            }
+            if (it.hasValue(R.styleable.BannerView_offscreenPageLimit)) {
+                mOffscreenPageLimit = it.getInteger(R.styleable.BannerView_offscreenPageLimit, mOffscreenPageLimit)
+            }
+            if (it.hasValue(R.styleable.BannerView_delayMillis)) {
+                mDelayMillis = it.getInteger(R.styleable.BannerView_delayMillis, 5000).toLong()
+            }
+            if (it.hasValue(R.styleable.BannerView_duration)) {
+                mDuration = it.getInteger(R.styleable.BannerView_duration, 0)
+            }
         }
         attributes.recycle()
 
@@ -243,10 +254,10 @@ class BannerView : RelativeLayout {
             if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
                     mIndicatorMargin != null || mIndicatorGravity != null) {
                 if (mIndicator == null) {
-                    mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                    mIndicator = DefaultIndicator(true, mIndicatorNormal, mIndicatorSelected,
                             mIndicatorMargin, mIndicatorGravity)
                 }
-                mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
+                mIndicator!!.initialize(this, mAdapter!!.getRealItemCount(),
                         mViewPager2!!.orientation, isLoopForIndicator)
                 mIndicator!!.registerOnPageChangeCallback(mViewPager2)
             } else {
@@ -369,13 +380,13 @@ class BannerView : RelativeLayout {
     fun setMultiPage(margin: Int): BannerView {
         clipChildren = false
         mViewPager2?.clipChildren = false
-        val params = mViewPager2?.layoutParams as MarginLayoutParams
+        val params = mViewPager2?.layoutParams?.az<MarginLayoutParams>()
         if (mViewPager2?.orientation == HORIZONTAL) {
-            params.leftMargin = margin.dpToPx(context) * 2
-            params.rightMargin = params.leftMargin
+            params?.leftMargin = margin.dpToPx(context) * 2
+            params?.rightMargin = params?.leftMargin
         } else {
-            params.topMargin = margin.dpToPx(context) * 2
-            params.bottomMargin = params.topMargin
+            params?.topMargin = margin.dpToPx(context) * 2
+            params?.bottomMargin = params?.topMargin
         }
         return this
     }
@@ -448,8 +459,8 @@ class BannerView : RelativeLayout {
             layoutManagerImpl.mDuration = mDuration
             layoutManagerImpl.mOffscreenPageLimit = mOffscreenPageLimit
             layoutManagerImpl.mDataSize = mDataSize
-            val mRecyclerView = it.getChildAt(0) as RecyclerView
-            mRecyclerView.layoutManager = layoutManagerImpl
+            val mRecyclerView = it.getChildAt(0)?.az<RecyclerView>()
+            mRecyclerView?.layoutManager = layoutManagerImpl
             val mLayoutManager = it::class.java.getDeclaredField("mLayoutManager")
             mLayoutManager.isAccessible = true
             mLayoutManager.set(it, layoutManagerImpl)

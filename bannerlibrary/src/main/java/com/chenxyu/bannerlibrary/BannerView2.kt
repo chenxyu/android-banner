@@ -16,7 +16,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.*
+import com.chenxyu.bannerlibrary.extend.az
 import com.chenxyu.bannerlibrary.extend.dpToPx
+import com.chenxyu.bannerlibrary.indicator.DefaultIndicator
+import com.chenxyu.bannerlibrary.indicator.Indicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
 import java.lang.ref.WeakReference
@@ -134,25 +137,29 @@ class BannerView2 : RelativeLayout {
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView2)
-        var orientation: Int
+        var orientation: Int = HORIZONTAL
         attributes.let {
-            orientation = it.getInteger(R.styleable.BannerView2_orientation, HORIZONTAL)
-            it.getResourceId(R.styleable.BannerView2_orientation, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mIndicatorNormal = this }
-            it.getResourceId(R.styleable.BannerView2_orientation, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mIndicatorSelected = this }
-            it.getDimension(R.styleable.BannerView2_orientation, -1F).takeIf { dimension ->
-                dimension != -1F
-            }?.apply { mIndicatorMargin = this.toInt() }
-            it.getInteger(R.styleable.BannerView2_orientation, -1).takeIf { resource ->
-                resource != -1
-            }?.apply { mIndicatorGravity = this }
-            mDelayMillis = it.getInteger(R.styleable.BannerView2_orientation, 5000).toLong()
-            it.getInteger(R.styleable.BannerView2_orientation, 0).takeIf { integer ->
-                integer != 0
-            }?.apply { mDuration = this }
+            if (it.hasValue(R.styleable.BannerView2_orientation)) {
+                orientation = it.getInteger(R.styleable.BannerView2_orientation, HORIZONTAL)
+            }
+            if (it.hasValue(R.styleable.BannerView2_indicatorNormal)) {
+                mIndicatorNormal = it.getResourceId(R.styleable.BannerView2_indicatorNormal, -1)
+            }
+            if (it.hasValue(R.styleable.BannerView2_indicatorSelected)) {
+                mIndicatorSelected = it.getResourceId(R.styleable.BannerView2_indicatorSelected, -1)
+            }
+            if (it.hasValue(R.styleable.BannerView2_indicatorMargin)) {
+                mIndicatorMargin = it.getDimension(R.styleable.BannerView2_indicatorMargin, -1F).toInt()
+            }
+            if (it.hasValue(R.styleable.BannerView2_indicatorGravity)) {
+                mIndicatorGravity = it.getInteger(R.styleable.BannerView2_indicatorGravity, -1)
+            }
+            if (it.hasValue(R.styleable.BannerView2_delayMillis)) {
+                mDelayMillis = it.getInteger(R.styleable.BannerView2_delayMillis, 5000).toLong()
+            }
+            if (it.hasValue(R.styleable.BannerView2_duration)) {
+                mDuration = it.getInteger(R.styleable.BannerView2_duration, 0)
+            }
         }
         attributes.recycle()
 
@@ -197,6 +204,8 @@ class BannerView2 : RelativeLayout {
         mAdapter?.getRealData()?.size?.let {
             if (isAutoPlay != null && it < 1) throw RuntimeException("No less than 1 pieces of data")
         }
+        measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
+        val displayMetrics = resources.displayMetrics
 
         mHandler?.removeMessages(WHAT_NEXT_PAGE)
         mLayoutManager?.mDuration = mDuration
@@ -204,6 +213,16 @@ class BannerView2 : RelativeLayout {
             layoutManager = mLayoutManager
             mAdapter?.let {
                 it.orientation = mLayoutManager?.orientation
+                if (this@BannerView2.measuredWidth == 0) {
+                    it.bannerWidth = displayMetrics.widthPixels
+                } else {
+                    it.bannerWidth = this@BannerView2.measuredWidth
+                }
+                if (this@BannerView2.measuredHeight == 0) {
+                    it.bannerHeight = displayMetrics.heightPixels
+                } else {
+                    it.bannerHeight = this@BannerView2.measuredHeight
+                }
                 adapter = it
             }
         }
@@ -233,10 +252,10 @@ class BannerView2 : RelativeLayout {
         if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
                 mIndicatorMargin != null || mIndicatorGravity != null) {
             if (mIndicator == null) {
-                mIndicator = DefaultIndicator(mIndicatorNormal, mIndicatorSelected,
+                mIndicator = DefaultIndicator(true, mIndicatorNormal, mIndicatorSelected,
                         mIndicatorMargin, mIndicatorGravity)
             }
-            mIndicator!!.setIndicator(this, mAdapter!!.getRealItemCount(),
+            mIndicator!!.initialize(this, mAdapter!!.getRealItemCount(),
                     mLayoutManager!!.orientation, isLoopForIndicator)
             mIndicator!!.addOnScrollListener(mRecyclerView)
         } else {
@@ -387,8 +406,8 @@ class BannerView2 : RelativeLayout {
      */
     private fun toggleStartEndPage() {
         if (isAutoPlay != null) {
-            val currentPosition = (mRecyclerView?.getChildAt(0)
-                    ?.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
+            val currentPosition = mRecyclerView?.getChildAt(0)
+                    ?.layoutParams?.az<RecyclerView.LayoutParams>()?.viewAdapterPosition
             mAdapter?.getData()?.size?.let {
                 when (currentPosition) {
                     // 第一页（假）
@@ -415,10 +434,12 @@ class BannerView2 : RelativeLayout {
                 WHAT_NEXT_PAGE -> {
                     bannerView?.mRecyclerView?.let {
                         if (!bannerView.isTouch) {
-                            it.smoothScrollToPosition(
-                                    (it.getChildAt(0)
-                                            .layoutParams as RecyclerView.LayoutParams).viewAdapterPosition + 1
-                            )
+                            it.getChildAt(0).layoutParams
+                                    .az<RecyclerView.LayoutParams>()
+                                    ?.viewAdapterPosition?.plus(1)?.let { position ->
+                                        it.smoothScrollToPosition(position)
+                                    }
+
                         }
                         sendEmptyMessageDelayed(WHAT_NEXT_PAGE, bannerView.mDelayMillis)
                     }
@@ -458,6 +479,16 @@ class BannerView2 : RelativeLayout {
          * 方向
          */
         var orientation: Int? = HORIZONTAL
+
+        /**
+         * BannerView2的宽
+         */
+        var bannerWidth: Int = 0
+
+        /**
+         * BannerView2的高
+         */
+        var bannerHeight: Int = 0
 
         init {
             transformData.addAll(mData)
@@ -546,7 +577,6 @@ class BannerView2 : RelativeLayout {
          */
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val bannerViewHolder = onCreateVH(parent, viewType)
-            val displayMetrics = parent.resources.displayMetrics
             bannerViewHolder.itemView.rootView?.apply {
                 if (autoPlay != null) {
                     // 循环轮播强制MATCH_PARENT
@@ -565,10 +595,10 @@ class BannerView2 : RelativeLayout {
                     if (showCount > 1) {
                         when (orientation) {
                             HORIZONTAL -> {
-                                width = displayMetrics.widthPixels.div(showCount)
+                                width = bannerWidth.div(showCount)
                             }
                             VERTICAL -> {
-                                height = displayMetrics.heightPixels.div(showCount)
+                                height = bannerHeight.div(showCount)
                             }
                         }
                     }

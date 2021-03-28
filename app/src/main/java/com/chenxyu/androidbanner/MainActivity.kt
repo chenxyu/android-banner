@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.chenxyu.bannerlibrary.BannerView
 import com.chenxyu.bannerlibrary.BannerView2
+import com.chenxyu.bannerlibrary.indicator.ScrollIndicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 
 /**
@@ -53,8 +54,9 @@ class MainActivity : FragmentActivity() {
         val mImageViewAdapter2 = ImageViewAdapter2(this, mImageUrls)
         mADBannerView2.setLifecycle(this)
                 .setOrientation(BannerView2.HORIZONTAL)
-                .setAdapter(mImageViewAdapter2, BannerView2.Margins(20, 0, 20, 0))
-                .setShowCount(2)
+                .setAdapter(mImageViewAdapter2, BannerView2.Margins(10, 16, 10, 0))
+                .setIndicator(ScrollIndicator(false))
+                .setShowCount(3)
                 .setDelayMillis(3000L)
                 .setDuration(500)
                 .build()

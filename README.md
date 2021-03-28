@@ -6,7 +6,7 @@
 
 BannerView（基于ViewPager2）：支持动画。  
 BannerView2（基于RecyclerView）：不支持动画，isAutoPlay值null时可以设置ItemView的Margin（不循环）。
-Indicator：指示器可以单独使用，支持ViewPager2和RecyclerView。
+Indicator：指示器可以自定义，支持ViewPager2和RecyclerView。
 
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
@@ -60,6 +60,24 @@ dependencies {
                 .setDuration(500)
                 .build()
         mImageViewAdapter.onItemClickListener = object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                Toast.makeText(this@MainActivity, position.toString(),
+                        Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // BannerView2
+        val mADBannerView2 = findViewById<BannerView2>(R.id.ad_banner_view2)
+        val mImageViewAdapter2 = ImageViewAdapter2(this, mImageUrls)
+        mADBannerView2.setLifecycle(this)
+                .setOrientation(BannerView2.HORIZONTAL)
+                .setAdapter(mImageViewAdapter2, BannerView2.Margins(10, 16, 10, 0))
+                .setIndicator(ScrollIndicator(false))
+                .setShowCount(3)
+                .setDelayMillis(3000L)
+                .setDuration(500)
+                .build()
+        mImageViewAdapter2.onItemClickListener = object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 Toast.makeText(this@MainActivity, position.toString(),
                         Toast.LENGTH_SHORT).show()
