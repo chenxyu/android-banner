@@ -10,6 +10,8 @@ Indicator：指示器可以自定义，支持ViewPager2和RecyclerView。
 
 ![示例](https://img-blog.csdnimg.cn/20200416104537970.gif#pic_center)
 
+![示例](https://img-blog.csdnimg.cn/20210331023708420.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzQ2OTU4NTg0,size_16,color_FFFFFF,t_70#pic_center)
+
 # Gradle 依赖
 
 1.root build.gradle
@@ -27,7 +29,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.6.0'
+	implementation 'com.github.chenxyu:android-banner:2.6.1'
 }
 ```
 
@@ -67,10 +69,24 @@ dependencies {
         }
 
         // BannerView2
+        val mImageUrls2 = mutableListOf<String?>()
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151718678&di=b0d073ad41f1e125aa7ee4abfcc9e2aa&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1920h1080%2F20180106%2F9692-fyqincu7584307.jpg")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151462489&di=472f98f77c71a36dc90cde4ced4bb9e9&imgtype=0&src=http%3A%2F%2Fvsd-picture.cdn.bcebos.com%2F4649cd5d6dac13c4ae0901967f988fa691be04a9.jpg")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151590305&di=09f460cb77e3cee5caae3d638c637abc&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201312%2F27%2F20131227233022_Bd3Ft.jpeg")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        mImageUrls2.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1583151690450&di=c33be331339fbc65459864f802fa1cc7&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn%2Fw1142h639%2F20180203%2F9979-fyrcsrx2995071.png")
+        // BannerView2
         val mADBannerView2 = findViewById<BannerView2>(R.id.ad_banner_view2)
-        val mImageViewAdapter2 = ImageViewAdapter2(this, mImageUrls)
+        val mImageViewAdapter2 = ImageViewAdapter2(this, mImageUrls2)
         mADBannerView2.setLifecycle(this)
                 .setOrientation(BannerView2.HORIZONTAL)
+                .setGridLayoutManager(GridLayoutManager(this, 2))
                 .setAdapter(mImageViewAdapter2, BannerView2.Margins(10, 16, 10, 0))
                 .setIndicator(ScrollIndicator(false))
                 .setShowCount(3)
@@ -174,6 +190,7 @@ class NewsAdapter(data: MutableList<String?>) :
 | setDuration | 滑动持续时间 |
 | setRoundRect | Banner圆角 |
 | setShowCount | 显示一屏显示个数（BannerView2） |
+| setGridLayoutManager | 网格布局管理（BannerView2） |
 | setPageMargin | 设置页面间距（BannerView） |
 | setMultiPage | 一屏多页 ，在[setAdapter]之后设置（BannerView） |
 | setScalePageTransformer | 缩放动画，在[setAdapter]之后设置（BannerView） |

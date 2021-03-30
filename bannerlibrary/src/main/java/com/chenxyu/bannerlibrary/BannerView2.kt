@@ -20,6 +20,7 @@ import com.chenxyu.bannerlibrary.extend.az
 import com.chenxyu.bannerlibrary.extend.dpToPx
 import com.chenxyu.bannerlibrary.indicator.DefaultIndicator
 import com.chenxyu.bannerlibrary.indicator.Indicator
+import com.chenxyu.bannerlibrary.indicator.ScrollIndicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
 import java.lang.ref.WeakReference
@@ -40,6 +41,7 @@ class BannerView2 : RelativeLayout {
     private var mRecyclerView: RecyclerView? = null
     private var mPagerSnapHelper: PagerSnapHelper? = null
     private var mLayoutManager: LayoutManagerImpl? = null
+    private var mGridLayoutManager: GridLayoutManager? = null
     private var mAdapter: Adapter<*, *>? = null
 
     /**
@@ -56,6 +58,11 @@ class BannerView2 : RelativeLayout {
      *当前页面数据长度
      */
     private var mDataSize: Int = -1
+
+    /**
+     * 方向
+     */
+    private var mOrientation: Int = HORIZONTAL
 
     /**
      * 一屏显示个数
@@ -137,10 +144,9 @@ class BannerView2 : RelativeLayout {
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.BannerView2)
-        var orientation: Int = HORIZONTAL
         attributes.let {
             if (it.hasValue(R.styleable.BannerView2_orientation)) {
-                orientation = it.getInteger(R.styleable.BannerView2_orientation, HORIZONTAL)
+                mOrientation = it.getInteger(R.styleable.BannerView2_orientation, HORIZONTAL)
             }
             if (it.hasValue(R.styleable.BannerView2_indicatorNormal)) {
                 mIndicatorNormal = it.getResourceId(R.styleable.BannerView2_indicatorNormal, -1)
@@ -163,7 +169,7 @@ class BannerView2 : RelativeLayout {
         }
         attributes.recycle()
 
-        mLayoutManager = LayoutManagerImpl(context, orientation, false)
+        mLayoutManager = LayoutManagerImpl(context, mOrientation, false)
         mRecyclerView = RecyclerView(context)
         mRecyclerView?.id = R.id.recycler_view_id
         val layoutParams = LinearLayout.LayoutParams(
@@ -210,7 +216,11 @@ class BannerView2 : RelativeLayout {
         mHandler?.removeMessages(WHAT_NEXT_PAGE)
         mLayoutManager?.mDuration = mDuration
         mRecyclerView?.apply {
-            layoutManager = mLayoutManager
+            layoutManager = if (isAutoPlay == null && mGridLayoutManager != null) {
+                mGridLayoutManager?.apply { orientation = mOrientation }
+            } else {
+                mLayoutManager
+            }
             mAdapter?.let {
                 it.orientation = mLayoutManager?.orientation
                 if (this@BannerView2.measuredWidth == 0) {
@@ -255,6 +265,15 @@ class BannerView2 : RelativeLayout {
                 mIndicator = DefaultIndicator(true, mIndicatorNormal, mIndicatorSelected,
                         mIndicatorMargin, mIndicatorGravity)
             }
+            when {
+                // 布局管理为GridLayoutManager情况下设置特殊参数
+                mIndicator is ScrollIndicator && isAutoPlay == null && mGridLayoutManager != null -> {
+                    mIndicator?.az<ScrollIndicator>()?.apply {
+                        isGrid = true
+                        spanCount = mGridLayoutManager!!.spanCount
+                    }
+                }
+            }
             mIndicator!!.initialize(this, mAdapter!!.getRealItemCount(),
                     mLayoutManager!!.orientation, isLoopForIndicator)
             mIndicator!!.addOnScrollListener(mRecyclerView)
@@ -296,9 +315,21 @@ class BannerView2 : RelativeLayout {
      * @param reverseLayout 颠倒布局
      */
     fun setOrientation(orientation: Int, reverseLayout: Boolean = false): BannerView2 {
+        mOrientation = orientation
         mLayoutManager?.apply {
             this.orientation = orientation
             this.reverseLayout = reverseLayout
+        }
+        return this
+    }
+
+    /**
+     * 设置网格布局管理（autoPlay为空生效），[setAutoPlay]不设置默认空
+     * @param layoutManager GridLayoutManager
+     */
+    fun setGridLayoutManager(layoutManager: GridLayoutManager): BannerView2 {
+        if (isAutoPlay == null) {
+            mGridLayoutManager = layoutManager
         }
         return this
     }

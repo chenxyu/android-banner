@@ -36,6 +36,16 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
      */
     var indicatorH: Int = 15
 
+    /**
+     * 是否设置GridLayoutManager
+     */
+    var isGrid: Boolean = false
+
+    /**
+     * GridLayoutManager行或列显示个数
+     */
+    var spanCount: Int = 1
+
     init {
         this.overlap = overlap
     }
@@ -52,8 +62,17 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
                         recyclerView.adapter?.az<BannerView2.Adapter<*, *>>()?.let { adapter ->
                             when (mOrientation) {
                                 RecyclerView.HORIZONTAL -> {
-                                    val itemCount = if (adapter.itemCount.minus(adapter.showCount) > 0) {
-                                        adapter.itemCount.minus(adapter.showCount)
+                                    val itemCount: Int = if (adapter.itemCount.minus(adapter.showCount) > 0) {
+                                        if (isGrid) {
+                                            val count = adapter.itemCount.minus(adapter.showCount * spanCount)
+                                            when (count % spanCount) {
+                                                0 -> count.div(spanCount)
+                                                1 -> count.div(spanCount) + 1
+                                                else -> 1
+                                            }
+                                        } else {
+                                            adapter.itemCount.minus(adapter.showCount)
+                                        }
                                     } else {
                                         0
                                     }
@@ -62,12 +81,29 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
                                         maxWH = itemCount.times(childView?.width ?: 0)
                                     }
                                     childView?.layoutParams?.az<RecyclerView.LayoutParams>()?.let {
-                                        maxWH += (it.marginStart + it.marginEnd).times(adapter.itemCount)
+                                        maxWH += if (isGrid) {
+                                            (it.marginStart + it.marginEnd).times(when (adapter.itemCount % spanCount) {
+                                                0 -> adapter.itemCount.div(spanCount)
+                                                1 -> adapter.itemCount.div(spanCount) + 1
+                                                else -> adapter.itemCount.div(spanCount) + 1
+                                            })
+                                        } else {
+                                            (it.marginStart + it.marginEnd).times(adapter.itemCount)
+                                        }
                                     }
                                 }
                                 RecyclerView.VERTICAL -> {
-                                    val itemCount = if (adapter.itemCount.minus(adapter.showCount) > 0) {
-                                        adapter.itemCount.minus(adapter.showCount)
+                                    val itemCount: Int = if (adapter.itemCount.minus(adapter.showCount) > 0) {
+                                        if (isGrid) {
+                                            val count = adapter.itemCount.minus(adapter.showCount * spanCount)
+                                            when (count % spanCount) {
+                                                0 -> count.div(spanCount)
+                                                1 -> count.div(spanCount) + 1
+                                                else -> 1
+                                            }
+                                        } else {
+                                            adapter.itemCount.minus(adapter.showCount)
+                                        }
                                     } else {
                                         0
                                     }
@@ -76,7 +112,15 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
                                         maxWH = itemCount.times(childView?.height ?: 0)
                                     }
                                     childView?.layoutParams?.az<RecyclerView.LayoutParams>()?.let {
-                                        maxWH += (it.topMargin + it.bottomMargin).times(adapter.itemCount)
+                                        maxWH += if (isGrid) {
+                                            (it.topMargin + it.bottomMargin).times(when (adapter.itemCount % spanCount) {
+                                                0 -> adapter.itemCount.div(spanCount)
+                                                1 -> adapter.itemCount.div(spanCount) + 1
+                                                else -> adapter.itemCount.div(spanCount) + 1
+                                            })
+                                        } else {
+                                            (it.topMargin + it.bottomMargin).times(adapter.itemCount)
+                                        }
                                     }
                                 }
                                 else -> {
