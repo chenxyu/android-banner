@@ -390,17 +390,17 @@ class BannerView2 : RelativeLayout {
     }
 
     /**
-     * Banner圆角
+     * Banner圆角（DP）
+     * @param radius 半径范围
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun setRoundRect(radius: Float): BannerView2 {
         outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View?, outline: Outline?) {
-                outline?.setRoundRect(left, top, right, bottom, radius)
+                outline?.setRoundRect(left, top, right, bottom, radius.dpToPx(context))
             }
         }
         clipToOutline = radius > 0F
-        invalidate()
         return this
     }
 
