@@ -21,10 +21,16 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
     private var maxWH: Int = 0
 
     /**
-     * 颜色
+     * 滚动条颜色
      */
     @ColorInt
     var indicatorColor: Int? = null
+
+    /**
+     * 滚动条轨道颜色
+     */
+    @ColorInt
+    var indicatorTrackColor: Int? = null
 
     /**
      * 指示器宽（DP）
@@ -143,6 +149,9 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
         }
         indicatorColor?.let {
             mScrollBar?.barColor = it
+        }
+        indicatorTrackColor?.let {
+            mScrollBar?.trackColor = it
         }
         when (orientation) {
             RecyclerView.HORIZONTAL -> {

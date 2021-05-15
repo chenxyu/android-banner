@@ -16,5 +16,5 @@ import androidx.annotation.DrawableRes
 /**
  * 获取Drawable资源
  */
-fun Context.getDrawable2(@DrawableRes resId: Int, theme: Resources.Theme? = null): Drawable =
+internal fun Context.getDrawable2(@DrawableRes resId: Int, theme: Resources.Theme? = null): Drawable =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) resources.getDrawable(resId, theme) else resources.getDrawable(resId)

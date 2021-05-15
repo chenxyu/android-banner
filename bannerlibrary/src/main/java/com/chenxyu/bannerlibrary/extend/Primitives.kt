@@ -12,7 +12,7 @@ import android.content.Context
 /**
  * dp转px
  */
-fun Float.dpToPx(context: Context): Float {
+internal fun Float.dpToPx(context: Context): Float {
     val scale = context.resources.displayMetrics.density
     return this * scale + 0.5f
 }
@@ -20,7 +20,7 @@ fun Float.dpToPx(context: Context): Float {
 /**
  * px转dp
  */
-fun Float.pxToDp(context: Context): Float {
+internal fun Float.pxToDp(context: Context): Float {
     val scale = context.resources.displayMetrics.density
     return this / scale + 0.5f
 }
@@ -28,7 +28,7 @@ fun Float.pxToDp(context: Context): Float {
 /**
  * dp转px
  */
-fun Int.dpToPx(context: Context): Int {
+internal fun Int.dpToPx(context: Context): Int {
     val scale = context.resources.displayMetrics.density
     return (this * scale + 0.5f).toInt()
 }
@@ -36,7 +36,7 @@ fun Int.dpToPx(context: Context): Int {
 /**
  * px转dp
  */
-fun Int.pxToDp(context: Context): Int {
+internal fun Int.pxToDp(context: Context): Int {
     val scale = context.resources.displayMetrics.density
     return (this / scale + 0.5f).toInt()
 }
