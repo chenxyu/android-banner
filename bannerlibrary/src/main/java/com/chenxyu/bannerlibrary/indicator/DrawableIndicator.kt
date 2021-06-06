@@ -16,22 +16,27 @@ import com.chenxyu.bannerlibrary.extend.getDrawable2
 /**
  * @Author:        ChenXingYu
  * @CreateDate:    2020/8/19 15:49
- * @Description:   默认指示器（圆点）
+ * @Description:   Drawable指示器（支持XML设置）
  * @Version:       1.0
  * @param overlap           指示器是否重叠在Banner上
  * @param normalDrawable    默认Indicator
  * @param selectedDrawable  选中Indicator
- * @param margin            指示器外边距（DP）
+ * @param margin            指示器外边距，间隔（DP）
  * @param gravity           指示器的位置
  */
-class DefaultIndicator(overlap: Boolean? = true,
-                       @DrawableRes normalDrawable: Int? = R.drawable.indicator_gray,
-                       @DrawableRes selectedDrawable: Int? = R.drawable.indicator_white,
-                       margin: Int? = 4,
-                       gravity: Int? = Gravity.CENTER
+class DrawableIndicator(overlap: Boolean? = true,
+                        @DrawableRes normalDrawable: Int? = R.drawable.indicator_gray,
+                        @DrawableRes selectedDrawable: Int? = R.drawable.indicator_white,
+                        margin: Int? = 4,
+                        gravity: Int? = Gravity.CENTER
 ) : Indicator() {
     /**
-     * 指示器外边距（DP）
+     * 指示器集
+     */
+    private var mIndicators: MutableList<View> = mutableListOf()
+
+    /**
+     * 指示器外边距，间隔（DP）
      */
     var indicatorMargin: Int = 4
 
@@ -99,6 +104,7 @@ class DefaultIndicator(overlap: Boolean? = true,
     }
 
     override fun initIndicator(container: LinearLayout, count: Int, orientation: Int) {
+        mIndicators.clear()
         repeat(count) {
             val indicators = View(container.context)
             val drawable = StateListDrawable()
@@ -137,12 +143,11 @@ class DefaultIndicator(overlap: Boolean? = true,
     /**
      * 切换指示器位置
      */
-    @Synchronized
     private fun toggleIndicator(recyclerView: RecyclerView?, viewPager2: ViewPager2?) {
         val currentPosition = viewPager2?.currentItem ?: recyclerView?.getChildAt(0)
                 ?.layoutParams?.az<RecyclerView.LayoutParams>()?.viewAdapterPosition
         val itemCount = viewPager2?.adapter?.itemCount
-                ?: recyclerView?.adapter?.az<BannerView2.Adapter<*, *>>()?.itemCount
+                ?: recyclerView?.adapter?.az<BannerView2.Adapter<*, *>>()?.itemCount ?: return
         for (indicator in mIndicators) {
             indicator.isSelected = false
             indicator.layoutParams = normalParams
@@ -154,12 +159,12 @@ class DefaultIndicator(overlap: Boolean? = true,
                     mIndicators[mIndicators.size - 1].layoutParams = selectedParams
                     return
                 }
-                itemCount?.minus(1) -> {
+                itemCount.minus(1) -> {
                     mIndicators[0].isSelected = true
                     mIndicators[0].layoutParams = selectedParams
                     return
                 }
-                itemCount?.minus(2) -> {
+                itemCount.minus(2) -> {
                     mIndicators[mIndicators.size - 1].isSelected = true
                     mIndicators[mIndicators.size - 1].layoutParams = selectedParams
                     return

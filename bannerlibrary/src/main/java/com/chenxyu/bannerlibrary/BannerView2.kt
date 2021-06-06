@@ -18,11 +18,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.*
 import com.chenxyu.bannerlibrary.extend.az
 import com.chenxyu.bannerlibrary.extend.dpToPx
-import com.chenxyu.bannerlibrary.indicator.DefaultIndicator
+import com.chenxyu.bannerlibrary.indicator.DrawableIndicator
 import com.chenxyu.bannerlibrary.indicator.Indicator
 import com.chenxyu.bannerlibrary.indicator.ScrollIndicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
+import com.chenxyu.bannerlibrary.vo.Margins
 import java.lang.ref.WeakReference
 
 /**
@@ -262,7 +263,7 @@ class BannerView2 : RelativeLayout {
         if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
                 mIndicatorMargin != null || mIndicatorGravity != null) {
             if (mIndicator == null) {
-                mIndicator = DefaultIndicator(true, mIndicatorNormal, mIndicatorSelected,
+                mIndicator = DrawableIndicator(true, mIndicatorNormal, mIndicatorSelected,
                         mIndicatorMargin, mIndicatorGravity)
             }
             when {
@@ -640,10 +641,10 @@ class BannerView2 : RelativeLayout {
                     // 设置Margin
                     margins?.let {
                         layoutParams.setMargins(
-                                it.leftMargin.dpToPx(context),
-                                it.topMargin.dpToPx(context),
-                                it.rightMargin.dpToPx(context),
-                                it.bottomMargin.dpToPx(context)
+                                it.left.dpToPx(context),
+                                it.top.dpToPx(context),
+                                it.right.dpToPx(context),
+                                it.bottom.dpToPx(context)
                         )
                     }
                     this.layoutParams = layoutParams
@@ -688,14 +689,6 @@ class BannerView2 : RelativeLayout {
 
         abstract fun initView(item: T?, position: Int? = null, context: Context? = null)
     }
-
-    /**
-     * 外边距（DP）
-     */
-    data class Margins(
-            var leftMargin: Int = 0, var topMargin: Int = 0,
-            var rightMargin: Int = 0, var bottomMargin: Int = 0
-    )
 
     private class LayoutManagerImpl(context: Context, orientation: Int, reverseLayout: Boolean = false) : LinearLayoutManager(
             context,

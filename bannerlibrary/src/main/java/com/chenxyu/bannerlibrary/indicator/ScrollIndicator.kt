@@ -16,7 +16,7 @@ import com.chenxyu.bannerlibrary.extend.dpToPx
  * @param overlap  指示器是否重叠在Banner上
  */
 class ScrollIndicator(overlap: Boolean = true) : Indicator() {
-    private var mScrollBar: ScrollBar? = null
+    private var mScrollBarView: ScrollBarView? = null
     private var mOrientation: Int = RecyclerView.HORIZONTAL
     private var maxWH: Int = 0
 
@@ -25,22 +25,30 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
      */
     @ColorInt
     var indicatorColor: Int? = null
+        set(value) {
+            field = value
+            mScrollBarView?.barColor = value
+        }
 
     /**
      * 滚动条轨道颜色
      */
     @ColorInt
     var indicatorTrackColor: Int? = null
+        set(value) {
+            field = value
+            mScrollBarView?.trackColor = value
+        }
 
     /**
      * 指示器宽（DP）
      */
-    var indicatorW: Int = 15
+    var indicatorWidth: Int = 15
 
     /**
      * 指示器高（DP）
      */
-    var indicatorH: Int = 15
+    var indicatorHeight: Int = 15
 
     /**
      * 是否设置GridLayoutManager
@@ -134,7 +142,7 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
                             }
                         }
                     }
-                    mScrollBar?.scroll(maxWH, dx, dy)
+                    mScrollBarView?.scroll(maxWH, dx, dy)
                 }
             }
             recyclerView?.addOnScrollListener(mRvScrollListener!!)
@@ -144,33 +152,33 @@ class ScrollIndicator(overlap: Boolean = true) : Indicator() {
     override fun initIndicator(container: LinearLayout, count: Int, orientation: Int) {
         mOrientation = orientation
         val displayMetrics = container.context.resources.displayMetrics
-        mScrollBar = ScrollBar(container.context).apply {
+        mScrollBarView = ScrollBarView(container.context).apply {
             this.orientation = orientation
         }
         indicatorColor?.let {
-            mScrollBar?.barColor = it
+            mScrollBarView?.barColor = it
         }
         indicatorTrackColor?.let {
-            mScrollBar?.trackColor = it
+            mScrollBarView?.trackColor = it
         }
         when (orientation) {
             RecyclerView.HORIZONTAL -> {
-                indicatorW = if (indicatorW == 15) {
+                indicatorWidth = if (indicatorWidth == 15) {
                     displayMetrics?.widthPixels?.div(12) ?: 0
                 } else {
-                    indicatorW.dpToPx(container.context)
+                    indicatorWidth.dpToPx(container.context)
                 }
             }
             RecyclerView.VERTICAL -> {
-                indicatorH = if (indicatorH == 15) {
+                indicatorHeight = if (indicatorHeight == 15) {
                     displayMetrics?.heightPixels?.div(15) ?: 0
                 } else {
-                    indicatorH.dpToPx(container.context)
+                    indicatorHeight.dpToPx(container.context)
                 }
             }
         }
-        mScrollBar?.layoutParams = LinearLayout.LayoutParams(indicatorW, indicatorH)
-        container.addView(mScrollBar)
+        mScrollBarView?.layoutParams = LinearLayout.LayoutParams(indicatorWidth, indicatorHeight)
+        container.addView(mScrollBarView)
     }
 
 }

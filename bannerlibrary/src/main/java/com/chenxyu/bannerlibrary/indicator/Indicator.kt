@@ -1,7 +1,6 @@
 package com.chenxyu.bannerlibrary.indicator
 
 import android.view.Gravity
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.DrawableRes
@@ -45,11 +44,6 @@ abstract class Indicator {
      */
     @DrawableRes
     var indicatorSelectedDrawable: Int = R.drawable.indicator_white
-
-    /**
-     * 指示器集
-     */
-    var mIndicators: MutableList<View> = mutableListOf()
 
     /**
      * ViewPager2页面变化监听
@@ -107,7 +101,7 @@ abstract class Indicator {
     /**
      * 设置指示器
      * @param relativeLayout BannerView or BannerView2
-     * @param count 数量
+     * @param count 真实数量
      * @param orientation 方向
      * @param isLoop 是否循环
      */
@@ -115,7 +109,6 @@ abstract class Indicator {
         this.isLoop = isLoop
         if (relativeLayout.childCount == 2) relativeLayout.removeViewAt(1)
         if (relativeLayout.childCount > 2) throw RuntimeException("There can only be one child view")
-        mIndicators.clear()
         val indicatorLayout = LinearLayout(relativeLayout.context).apply {
             this.orientation = orientation
             this.gravity = indicatorGravity
@@ -162,7 +155,7 @@ abstract class Indicator {
     /**
      * 设置指示器
      * @param container 指示器ViewGroup
-     * @param count 数量
+     * @param count 真实数量
      * @param orientation 方向
      */
     abstract fun initIndicator(container: LinearLayout, count: Int, orientation: Int)

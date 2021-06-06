@@ -17,7 +17,7 @@ import java.math.BigDecimal
  * @Description:   滚动条
  * @Version:       1.0
  */
-internal class ScrollBar : View {
+internal class ScrollBarView : View {
     companion object {
         private const val RADIUS = 5F
     }
@@ -149,4 +149,5 @@ internal class ScrollBar : View {
             invalidate()
         }
     }
+
 }

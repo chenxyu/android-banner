@@ -7,8 +7,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.chenxyu.bannerlibrary.BannerView
 import com.chenxyu.bannerlibrary.BannerView2
+import com.chenxyu.bannerlibrary.indicator.CircleIndicator
 import com.chenxyu.bannerlibrary.indicator.ScrollIndicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
+import com.chenxyu.bannerlibrary.vo.Margins
 
 /**
  * @author ChenXingYu
@@ -38,7 +40,7 @@ class MainActivity : FragmentActivity() {
         val mImageViewAdapter = ImageViewAdapter(this, mImageUrls)
         mADBannerView.setLifecycle(this)
                 .setAdapter(mImageViewAdapter)
-                .setIndicator()
+                .setIndicator(CircleIndicator())
                 .setAutoPlay(true)
                 .setDelayMillis(3000L)
                 .setDuration(500)
@@ -68,11 +70,9 @@ class MainActivity : FragmentActivity() {
         mADBannerView2.setLifecycle(this)
                 .setOrientation(BannerView2.HORIZONTAL)
                 .setGridLayoutManager(GridLayoutManager(this, 2))
-                .setAdapter(mImageViewAdapter2, BannerView2.Margins(10, 16, 10, 0))
+                .setAdapter(mImageViewAdapter2, Margins(10, 16, 10, 0))
                 .setIndicator(ScrollIndicator(false))
                 .setShowCount(3)
-                .setDelayMillis(3000L)
-                .setDuration(500)
                 .build()
         mImageViewAdapter2.onItemClickListener = object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {

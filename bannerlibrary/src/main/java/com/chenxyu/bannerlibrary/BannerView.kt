@@ -25,7 +25,8 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.chenxyu.bannerlibrary.extend.az
 import com.chenxyu.bannerlibrary.extend.dpToPx
-import com.chenxyu.bannerlibrary.indicator.DefaultIndicator
+import com.chenxyu.bannerlibrary.indicator.CircleIndicator
+import com.chenxyu.bannerlibrary.indicator.DrawableIndicator
 import com.chenxyu.bannerlibrary.indicator.Indicator
 import com.chenxyu.bannerlibrary.listener.OnItemClickListener
 import com.chenxyu.bannerlibrary.listener.OnItemLongClickListener
@@ -254,7 +255,7 @@ class BannerView : RelativeLayout {
             if (mIndicator != null || mIndicatorNormal != null || mIndicatorSelected != null ||
                     mIndicatorMargin != null || mIndicatorGravity != null) {
                 if (mIndicator == null) {
-                    mIndicator = DefaultIndicator(true, mIndicatorNormal, mIndicatorSelected,
+                    mIndicator = DrawableIndicator(true, mIndicatorNormal, mIndicatorSelected,
                             mIndicatorMargin, mIndicatorGravity)
                 }
                 mIndicator!!.initialize(this, mAdapter!!.getRealItemCount(),
@@ -307,7 +308,7 @@ class BannerView : RelativeLayout {
      * 设置指示器
      * @param indicator 自定义指示器需继承此类[Indicator]
      */
-    fun setIndicator(indicator: Indicator? = DefaultIndicator()): BannerView {
+    fun setIndicator(indicator: Indicator): BannerView {
         mIndicator = indicator
         return this
     }
