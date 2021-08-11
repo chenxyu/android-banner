@@ -29,7 +29,7 @@ allprojects {
 
 ```kotlin
 dependencies {
-	implementation 'com.github.chenxyu:android-banner:2.7.0'
+	implementation 'com.github.chenxyu:android-banner:2.7.1'
 }
 ```
 
@@ -190,11 +190,11 @@ class NewsAdapter(data: MutableList<String?>) :
 | setShowCount | 显示一屏显示个数（BannerView2） |
 | setGridLayoutManager | 网格布局管理（BannerView2） |
 | setPageMargin | 设置页面间距（BannerView） |
-| setMultiPage | 一屏多页 ，在[setAdapter]之后设置（BannerView） |
-| setScalePageTransformer | 缩放动画，在[setAdapter]之后设置（BannerView） |
-| setZoomOutPageTransformer | 官方示例缩放动画，在[setAdapter]之后设置（BannerView） |
-| setRotationPageTransformer | 官方示例旋转动画，在[setAdapter]之后设置（BannerView） |
-| setDepthPageTransformer | 官方示例深度动画，在[setAdapter]之后设置（BannerView） |
+| setMultiPage | 一屏多页 ，在 setAdapter 之后设置（BannerView） |
+| setScalePageTransformer | 缩放动画，在 setAdapter 之后设置（BannerView） |
+| setZoomOutPageTransformer | 官方示例缩放动画，在 setAdapter 之后设置（BannerView） |
+| setRotationPageTransformer | 官方示例旋转动画，在 setAdapter 之后设置（BannerView） |
+| setDepthPageTransformer | 官方示例深度动画，在 setAdapter 之后设置（BannerView） |
 | setPageTransformer | 自定义动画（BannerView） |
 | build | 创建Banner |
 
