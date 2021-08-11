@@ -60,6 +60,28 @@ class DrawableIndicator(overlap: Boolean? = true,
      */
     var indicatorSelectedH: Int = 7
 
+    /**
+     * 默认Indicator Drawable
+     */
+    @DrawableRes
+    var indicatorNormalDrawable: Int = R.drawable.indicator_gray
+
+    /**
+     * 选中Indicator Drawable
+     */
+    @DrawableRes
+    var indicatorSelectedDrawable: Int = R.drawable.indicator_white
+
+    /**
+     * 默认指示器LayoutParams
+     */
+    lateinit var normalParams: LinearLayout.LayoutParams
+
+    /**
+     * 选中的指示器LayoutParams
+     */
+    lateinit var selectedParams: LinearLayout.LayoutParams
+
     init {
         overlap?.let { this.overlap = it }
         normalDrawable?.let { indicatorNormalDrawable = it }
@@ -105,6 +127,24 @@ class DrawableIndicator(overlap: Boolean? = true,
 
     override fun initIndicator(container: LinearLayout, count: Int, orientation: Int) {
         mIndicators.clear()
+        normalParams = LinearLayout.LayoutParams(
+                indicatorWidth.dpToPx(container.context),
+                indicatorHeight.dpToPx(container.context))
+        selectedParams = LinearLayout.LayoutParams(
+                indicatorSelectedW.dpToPx(container.context),
+                indicatorSelectedH.dpToPx(container.context))
+        if (orientation == RecyclerView.HORIZONTAL) {
+            normalParams.setMargins(indicatorMargin.dpToPx(container.context), 0,
+                    indicatorMargin.dpToPx(container.context), 0)
+            selectedParams.setMargins(indicatorMargin.dpToPx(container.context), 0,
+                    indicatorMargin.dpToPx(container.context), 0)
+
+        } else {
+            normalParams.setMargins(0, indicatorMargin.dpToPx(container.context),
+                    0, indicatorMargin.dpToPx(container.context))
+            selectedParams.setMargins(0, indicatorMargin.dpToPx(container.context),
+                    0, indicatorMargin.dpToPx(container.context))
+        }
         repeat(count) {
             val indicators = View(container.context)
             val drawable = StateListDrawable()
@@ -113,27 +153,8 @@ class DrawableIndicator(overlap: Boolean? = true,
             drawable.addState(IntArray(0), container.context.getDrawable2(indicatorNormalDrawable))
             indicators.background = drawable
             indicators.isSelected = false
-            normalParams = LinearLayout.LayoutParams(
-                    indicatorWidth.dpToPx(container.context),
-                    indicatorHeight.dpToPx(container.context))
-            selectedParams = LinearLayout.LayoutParams(
-                    indicatorSelectedW.dpToPx(container.context),
-                    indicatorSelectedH.dpToPx(container.context))
-            if (orientation == RecyclerView.HORIZONTAL) {
-                normalParams.setMargins(indicatorMargin.dpToPx(container.context), 0,
-                        indicatorMargin.dpToPx(container.context), 0)
-                selectedParams.setMargins(indicatorMargin.dpToPx(container.context), 0,
-                        indicatorMargin.dpToPx(container.context), 0)
-                indicators.layoutParams = normalParams
-                container.addView(indicators)
-            } else {
-                normalParams.setMargins(0, indicatorMargin.dpToPx(container.context),
-                        0, indicatorMargin.dpToPx(container.context))
-                selectedParams.setMargins(0, indicatorMargin.dpToPx(container.context),
-                        0, indicatorMargin.dpToPx(container.context))
-                indicators.layoutParams = normalParams
-                container.addView(indicators)
-            }
+            indicators.layoutParams = normalParams
+            container.addView(indicators)
             mIndicators.add(indicators)
         }
         mIndicators[0].isSelected = true

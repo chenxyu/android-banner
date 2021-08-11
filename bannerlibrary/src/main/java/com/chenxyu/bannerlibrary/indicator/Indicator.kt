@@ -3,10 +3,8 @@ package com.chenxyu.bannerlibrary.indicator
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.chenxyu.bannerlibrary.R
 import com.chenxyu.bannerlibrary.extend.dpToPx
 
 /**
@@ -34,18 +32,6 @@ abstract class Indicator {
     var indicatorGravity: Int = Gravity.CENTER
 
     /**
-     * 默认Indicator Drawable
-     */
-    @DrawableRes
-    var indicatorNormalDrawable: Int = R.drawable.indicator_gray
-
-    /**
-     * 选中Indicator Drawable
-     */
-    @DrawableRes
-    var indicatorSelectedDrawable: Int = R.drawable.indicator_white
-
-    /**
      * ViewPager2页面变化监听
      */
     var mVp2PageChangeCallback: ViewPager2.OnPageChangeCallback? = null
@@ -54,16 +40,6 @@ abstract class Indicator {
      * RecyclerView滑动监听
      */
     var mRvScrollListener: RecyclerView.OnScrollListener? = null
-
-    /**
-     * 默认指示器LayoutParams
-     */
-    lateinit var normalParams: LinearLayout.LayoutParams
-
-    /**
-     * 选中的指示器LayoutParams
-     */
-    lateinit var selectedParams: LinearLayout.LayoutParams
 
     /**
      * 是否循环

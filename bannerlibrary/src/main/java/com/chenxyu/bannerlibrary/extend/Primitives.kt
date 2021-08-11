@@ -18,25 +18,9 @@ internal fun Float.dpToPx(context: Context): Float {
 }
 
 /**
- * px转dp
- */
-internal fun Float.pxToDp(context: Context): Float {
-    val scale = context.resources.displayMetrics.density
-    return this / scale + 0.5f
-}
-
-/**
  * dp转px
  */
 internal fun Int.dpToPx(context: Context): Int {
     val scale = context.resources.displayMetrics.density
     return (this * scale + 0.5f).toInt()
-}
-
-/**
- * px转dp
- */
-internal fun Int.pxToDp(context: Context): Int {
-    val scale = context.resources.displayMetrics.density
-    return (this / scale + 0.5f).toInt()
 }
